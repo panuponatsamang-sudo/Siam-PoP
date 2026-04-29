@@ -898,7 +898,18 @@ function api(url, body) {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(body)
-  }).then(function(r) { return r.json(); });
+  }).then(function(r) {
+    if (r.status === 401) {
+      toast('⚠️ Session หมดอายุ กรุณา Login ใหม่', false);
+      setTimeout(function() { window.location.href = '/'; }, 2000);
+      throw new Error('session expired');
+    }
+    if (r.status === 403) {
+      toast('❌ ไม่มีสิทธิ์ใช้งานฟังก์ชันนี้', false);
+      throw new Error('forbidden');
+    }
+    return r.json();
+  });
 }
 
 function fmt(iso) {

@@ -12,9 +12,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
   secret: 'wintech-siam-2026',
-  resave: false,
+  resave: true,
   saveUninitialized: false,
-  cookie: { maxAge: 86400000 }
+  rolling: true, // รีเซ็ต maxAge ทุกครั้งที่ใช้งาน
+  cookie: {
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 วัน
+    httpOnly: true,
+    secure: false
+  }
 }));
 
 const UNIVERSE_ID    = process.env.UNIVERSE_ID;
@@ -100,9 +105,24 @@ function getUsers() {
 function saveUsers(u) { fs.writeFileSync(USERS_FILE, JSON.stringify(u, null, 2)); }
 
 const onlineUsers = new Map();
-const auth      = (req, res, next) => req.session.user ? next() : res.status(401).json({ ok: false, msg: 'กรุณาเข้าสู่ระบบ' });
-const adminOnly = (req, res, next) => ['owner','board','admin'].includes(req.session.user?.role) ? next() : res.status(403).json({ ok: false, msg: 'ไม่มีสิทธิ์' }); // roles: member < admin < board < owner
-const ownerOnly = (req, res, next) => req.session.user?.role === 'owner' ? next() : res.status(403).json({ ok: false, msg: 'เฉพาะเจ้าของแมพ' });
+const auth = (req, res, next) => {
+  if (req.session && req.session.user) return next();
+  // ถ้าเป็น API call ให้ return JSON
+  if (req.path.startsWith('/api/') || req.path === '/events') {
+    return res.status(401).json({ ok: false, msg: 'กรุณาเข้าสู่ระบบใหม่', redirect: true });
+  }
+  res.redirect('/');
+};
+const adminOnly = (req, res, next) => {
+  if (!req.session || !req.session.user) return res.status(401).json({ ok: false, msg: 'กรุณาเข้าสู่ระบบใหม่', redirect: true });
+  if (['owner','board','admin'].includes(req.session.user.role)) return next();
+  res.status(403).json({ ok: false, msg: 'ไม่มีสิทธิ์ใช้งานฟังก์ชันนี้' });
+};
+const ownerOnly = (req, res, next) => {
+  if (!req.session || !req.session.user) return res.status(401).json({ ok: false, msg: 'กรุณาเข้าสู่ระบบใหม่', redirect: true });
+  if (req.session.user.role === 'owner') return next();
+  res.status(403).json({ ok: false, msg: 'เฉพาะเจ้าของแมพเท่านั้น' });
+};
 
 async function getRobloxStats() {
   try {
