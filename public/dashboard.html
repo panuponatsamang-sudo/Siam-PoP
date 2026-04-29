@@ -1064,29 +1064,33 @@ function selectPlayer(idx) {
 function doReduceMoney() {
   var userId = document.getElementById('give-id').value.trim();
   var amount = document.getElementById('reduce-amount').value.trim();
-  if (!userId || !amount) return toast('กรุณาใส่จำนวนเงิน', false);
+  if (!userId) return toast('⚠️ กรุณาเลือกผู้เล่นก่อน', false);
+  if (!amount || isNaN(amount) || parseInt(amount) <= 0) return toast('⚠️ กรุณาใส่จำนวนที่ถูกต้อง', false);
+  toast('⏳ กำลังส่งคำสั่ง...', true);
   api('/api/admin/cmd', { userId: userId, cmd: 'setmoney', amount: -parseInt(amount) }).then(function(d) {
     toast(d.msg, d.ok);
-    if (d.ok) { document.getElementById('reduce-amount').value = ''; setTimeout(loadMapPlayers, 2000); }
-  });
+    if (d.ok) { document.getElementById('reduce-amount').value = ''; setTimeout(loadMapPlayers, 3000); }
+  }).catch(function(e) { toast('❌ เกิดข้อผิดพลาด: ' + e.message, false); });
 }
 
 function doClearInventory() {
   var userId = document.getElementById('give-id').value.trim();
   var name = document.getElementById('pd-name').textContent;
-  if (!userId) return toast('กรุณาเลือกผู้เล่นก่อน', false);
+  if (!userId) return toast('⚠️ กรุณาเลือกผู้เล่นก่อน', false);
   if (!confirm('ยืนยันลบของทั้งหมดของ ' + name + '?')) return;
+  toast('⏳ กำลังส่งคำสั่ง...', true);
   api('/api/admin/cmd', { userId: userId, cmd: 'clearinventory' }).then(function(d) {
     toast(d.msg, d.ok);
-  });
+  }).catch(function(e) { toast('❌ เกิดข้อผิดพลาด: ' + e.message, false); });
 }
 
 function doFillFoodWater() {
   var userId = document.getElementById('give-id').value.trim();
-  if (!userId) return toast('กรุณาเลือกผู้เล่นก่อน', false);
+  if (!userId) return toast('⚠️ กรุณาเลือกผู้เล่นก่อน', false);
+  toast('⏳ กำลังส่งคำสั่ง...', true);
   api('/api/admin/cmd', { userId: userId, cmd: 'fillfoodwater' }).then(function(d) {
     toast(d.msg, d.ok);
-  });
+  }).catch(function(e) { toast('❌ เกิดข้อผิดพลาด: ' + e.message, false); });
 }
 
 function doViewScreen() {

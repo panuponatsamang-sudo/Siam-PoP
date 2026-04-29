@@ -47,31 +47,10 @@ function broadcast(data) {
   });
 }
 
-const HISTORY_FILE = './history.json';
-
-// โหลด history เก่า
-function loadHistory() {
-  if (!fs.existsSync(HISTORY_FILE)) {
-    const def = { events: [] };
-    fs.writeFileSync(HISTORY_FILE, JSON.stringify(def));
-    return def;
-  }
-  try { return JSON.parse(fs.readFileSync(HISTORY_FILE)); }
-  catch { return { events: [] }; }
-}
-let historyData = loadHistory();
-const eventLog = historyData.events.slice(0, 200); // recent for live feed
-
-let saveTimer = null;
-function scheduleSaveHistory() {
-  if (saveTimer) return;
-  saveTimer = setTimeout(() => {
-    try {
-      fs.writeFileSync(HISTORY_FILE, JSON.stringify({ events: historyData.events.slice(0, 10000) }));
-    } catch(e) { console.error('save history error:', e.message); }
-    saveTimer = null;
-  }, 5000);
-}
+// ใช้ memory-based history (Render free tier ไม่มี persistent disk)
+const historyData = { events: [] };
+const eventLog = []; // recent 200 for live feed
+function scheduleSaveHistory() {} // no-op on Render
 
 function getThaiTime() {
   return new Date().toLocaleTimeString('th-TH', {
@@ -92,13 +71,12 @@ function getThaiTimestamp() {
 function addEvent(event) {
   event.id = Date.now();
   event.timestamp = new Date().toISOString();
-  event.thaiTimestamp = getThaiTimestamp();
+  event.time = event.time || getThaiTime();
+  event.dateStr = event.dateStr || getThaiDate();
   eventLog.unshift(event);
   if (eventLog.length > 200) eventLog.pop();
-  // เก็บประวัติถาวร
   historyData.events.unshift(event);
-  if (historyData.events.length > 10000) historyData.events.pop();
-  scheduleSaveHistory();
+  if (historyData.events.length > 5000) historyData.events.pop();
   broadcast(event);
 }
 
@@ -463,9 +441,18 @@ app.post('/api/admin/cmd', auth, adminOnly, async (req, res) => {
   if (!resolvedId) return res.json({ ok: false, msg: 'ไม่พบผู้ใช้: ' + userId });
   try {
     await sendToRoblox('AdminCommands', { cmd, userId: resolvedId, amount: amount || 0 });
-    const msgs = { clearinventory: 'ลบของสำเร็จ', setmoney: 'ปรับเงินสำเร็จ', fillfoodwater: 'เติมอาหาร/น้ำสำเร็จ' };
-    res.json({ ok: true, msg: msgs[cmd] || 'สำเร็จ' });
-  } catch(e) { res.json({ ok: false, msg: e.message }); }
+    const icons = { clearinventory: '🗑️', setmoney: '💰', fillfoodwater: '🍖', requestscreen: '📸' };
+    const msgs = { clearinventory: '🗑️ ลบของสำเร็จ', setmoney: '💰 ปรับเงินสำเร็จ', fillfoodwater: '🍖 เติมอาหาร/น้ำสำเร็จ' };
+    if (cmd !== 'requestscreen') {
+      addEvent({ type: 'adminaction', icon: icons[cmd] || '⚙️', color: '#9C27B0',
+        text: (msgs[cmd] || cmd) + ' — userId:' + resolvedId + ' โดย ' + req.session.user.displayName,
+        time: getThaiTime(), dateStr: getThaiDate() });
+    }
+    res.json({ ok: true, msg: msgs[cmd] || '✅ สำเร็จ' });
+  } catch(e) {
+    console.error('admin/cmd error:', e.message);
+    res.json({ ok: false, msg: '❌ ส่งคำสั่งไม่ได้: ' + e.message });
+  }
 });
 
 app.post('/api/fetter', auth, adminOnly, async (req, res) => {
@@ -473,8 +460,14 @@ app.post('/api/fetter', auth, adminOnly, async (req, res) => {
   if (!username || !action) return res.json({ ok: false, msg: 'กรุณากรอกให้ครบ' });
   try {
     await sendToRoblox('FetterSystem', { username, action });
-    res.json({ ok: true, msg: (action === 'lock' ? '⛓️ ล็อคโซ่ตรวน ' : '🔓 ปลดโซ่ตรวน ') + username + ' สำเร็จ' });
-  } catch(e) { res.json({ ok: false, msg: e.message }); }
+    const msg = (action === 'lock' ? '⛓️ ล็อคโซ่ตรวน ' : '🔓 ปลดโซ่ตรวน ') + username + ' สำเร็จ';
+    addEvent({ type: 'fetter', icon: action === 'lock' ? '⛓️' : '🔓', color: action === 'lock' ? '#FF5722' : '#4CAF50',
+      text: msg, time: getThaiTime(), dateStr: getThaiDate(), player: username });
+    res.json({ ok: true, msg });
+  } catch(e) {
+    console.error('fetter error:', e.message);
+    res.json({ ok: false, msg: '❌ ส่งคำสั่งไม่ได้: ' + e.message });
+  }
 });
 
 app.post('/api/givemoney', auth, adminOnly, async (req, res) => {
