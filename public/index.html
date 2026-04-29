@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>สยาม | Life Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#D4A017;--gold-light:#F5C842;--gold-dark:#8B6914;--gold-dim:#4A3800;
+  --brown:#1C0F00;--brown-2:#2A1500;--brown-3:#3D2200;
+  --cream:#F5E6C8;--red-dark:#8B0000;
+}
+
+/* ── Background ── */
+body{
+  min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% 0%, #3D1A00 0%, #1C0F00 40%, #0A0500 100%);
+  font-family:'Sarabun',sans-serif;
+}
+
+/* ── Stars ── */
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d) infinite}
+@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:0.1}}
+
+/* ── Temple silhouette ── */
+.temple-bg{
+  position:fixed;bottom:0;left:0;right:0;height:400px;z-index:1;
+  background:linear-gradient(to top, #0A0500 0%, transparent 100%);
+  pointer-events:none;
+}
+.temple-svg{position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:1;opacity:0.15;pointer-events:none}
+
+/* ── Main layout ── */
+.container{
+  position:relative;z-index:10;
+  min-height:100vh;display:flex;align-items:center;justify-content:space-between;
+  padding:40px 80px;gap:40px;
+}
+@media(max-width:900px){.container{flex-direction:column;padding:40px 20px;}.title-section{align-items:center;text-align:center;}.auth-panel{width:100%}}
+
+/* ── Left: Title ── */
+.title-section{flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+
+.ornament-top{
+  font-size:13px;letter-spacing:8px;color:var(--gold);opacity:0.7;
+  margin-bottom:20px;font-family:'Cinzel',serif;
+}
+
+.main-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(48px,6vw,90px);
+  font-weight:900;
+  line-height:1;
+  margin-bottom:8px;
+  position:relative;
+}
+
+.title-siam{
+  display:block;
+  background:linear-gradient(135deg, #F5C842 0%, #D4A017 30%, #8B6914 60%, #F5C842 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 30px rgba(212,160,23,0.5));
+  animation:goldShimmer 3s ease-in-out infinite;
+}
+
+@keyframes goldShimmer{
+  0%,100%{filter:drop-shadow(0 0 20px rgba(212,160,23,0.4))}
+  50%{filter:drop-shadow(0 0 50px rgba(212,160,23,0.9)) drop-shadow(0 0 80px rgba(245,200,66,0.4))}
+}
+
+.title-divider{
+  display:flex;align-items:center;gap:16px;margin:12px 0;
+}
+.divider-line{flex:1;max-width:200px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.divider-diamond{
+  width:10px;height:10px;background:var(--gold);
+  transform:rotate(45deg);
+  box-shadow:0 0 10px var(--gold);
+}
+
+.title-sub{
+  font-family:'Cinzel',serif;font-size:clamp(20px,2.5vw,36px);
+  color:var(--cream);letter-spacing:6px;opacity:0.9;
+  text-shadow:0 2px 20px rgba(212,160,23,0.3);
+}
+
+.tagline{
+  margin-top:24px;font-size:16px;color:var(--gold-dark);
+  letter-spacing:3px;font-family:'Cinzel',serif;
+  opacity:0.8;
+}
+
+.bottom-ornament{
+  margin-top:40px;font-size:20px;letter-spacing:12px;
+  color:var(--gold);opacity:0.4;
+}
+
+/* ── Right: Auth Panel ── */
+.auth-panel{
+  width:380px;flex-shrink:0;
+  background:linear-gradient(160deg, rgba(42,21,0,0.95), rgba(28,15,0,0.98));
+  border:1px solid rgba(212,160,23,0.4);
+  border-radius:4px;padding:40px 32px;
+  box-shadow:0 0 80px rgba(0,0,0,0.8), inset 0 1px 0 rgba(212,160,23,0.1);
+  position:relative;
+}
+
+.auth-panel::before,.auth-panel::after{
+  content:'';position:absolute;width:32px;height:32px;
+  border-color:var(--gold);border-style:solid;opacity:0.5;
+}
+.auth-panel::before{top:8px;left:8px;border-width:2px 0 0 2px}
+.auth-panel::after{bottom:8px;right:8px;border-width:0 2px 2px 0}
+
+.panel-header{text-align:center;margin-bottom:28px}
+.panel-emblem{font-size:36px;display:block;margin-bottom:10px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.panel-title{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);letter-spacing:3px}
+
+/* Tabs */
+.tabs{display:flex;margin-bottom:24px;border:1px solid rgba(212,160,23,0.2);border-radius:2px;overflow:hidden}
+.tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-family:'Cinzel',serif;font-size:13px;
+  color:var(--gold-dark);background:transparent;border:none;transition:all .2s;letter-spacing:1px}
+.tab.active{background:rgba(212,160,23,0.15);color:var(--gold)}
+.tab:hover:not(.active){background:rgba(212,160,23,0.05);color:var(--cream)}
+
+.form{display:none}.form.active{display:block}
+
+.field{margin-bottom:14px}
+label{display:block;font-size:10px;color:var(--gold-dark);margin-bottom:5px;letter-spacing:3px;font-weight:600}
+input{
+  width:100%;background:rgba(0,0,0,0.5);
+  border:1px solid rgba(212,160,23,0.2);border-bottom:1px solid rgba(212,160,23,0.4);
+  border-radius:2px;padding:11px 14px;
+  color:var(--cream);font-family:'Sarabun',sans-serif;font-size:14px;
+  outline:none;transition:all .2s;
+}
+input:focus{border-color:var(--gold);background:rgba(212,160,23,0.05)}
+input::placeholder{color:rgba(139,105,20,0.6)}
+
+.btn-primary{
+  width:100%;padding:13px;margin-top:6px;
+  background:linear-gradient(135deg,var(--gold-dim),var(--gold-dark));
+  border:1px solid var(--gold);border-radius:2px;
+  color:var(--cream);font-family:'Cinzel',serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;letter-spacing:2px;
+}
+.btn-primary:hover{background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--brown);transform:translateY(-1px);box-shadow:0 4px 20px rgba(212,160,23,0.4)}
+
+.msg-box{padding:10px 14px;border-radius:2px;font-size:13px;margin-bottom:14px;text-align:center;display:none}
+.msg-ok{background:rgba(20,60,20,0.8);border:1px solid rgba(50,150,50,0.4);color:#a5d6a7}
+.msg-err{background:rgba(60,10,10,0.8);border:1px solid rgba(150,30,30,0.4);color:#ffaaaa}
+
+.footer-text{text-align:center;color:rgba(139,105,20,0.5);font-size:10px;letter-spacing:3px;margin-top:24px;font-family:'Cinzel',serif}
+
+/* ── Floating particles ── */
+.particle{
+  position:fixed;width:2px;height:2px;border-radius:50%;
+  background:var(--gold);pointer-events:none;z-index:5;
+  animation:rise var(--d) linear infinite;opacity:0;
+}
+@keyframes rise{
+  0%{transform:translateY(100vh) translateX(0);opacity:0}
+  10%{opacity:0.6}
+  90%{opacity:0.3}
+  100%{transform:translateY(-100px) translateX(var(--dx));opacity:0}
+}
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- Temple SVG Background -->
+<svg class="temple-svg" width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Prang -->
+  <polygon points="600,20 560,120 540,120 520,200 500,200 480,280 440,280 440,400 760,400 760,280 720,280 720,200 700,200 680,120 640,120" fill="#D4A017"/>
+  <!-- Small prangs -->
+  <polygon points="400,100 380,160 360,160 340,220 320,220 320,400 480,400 480,220 460,220 440,160 420,160" fill="#D4A017" opacity="0.7"/>
+  <polygon points="800,100 820,160 840,160 860,220 880,220 880,400 720,400 720,220 740,220 760,160 780,160" fill="#D4A017" opacity="0.7"/>
+  <!-- Base -->
+  <rect x="300" y="350" width="600" height="50" fill="#D4A017" opacity="0.5"/>
+  <rect x="200" y="370" width="800" height="30" fill="#D4A017" opacity="0.3"/>
+</svg>
+
+<div class="temple-bg"></div>
+
+<!-- Main Container -->
+<div class="container">
+
+  <!-- Title Section -->
+  <div class="title-section">
+    <div class="ornament-top">✦ อาณาจักรสยาม ✦</div>
+
+    <div class="main-title">
+      <span class="title-siam">สยาม</span>
+    </div>
+
+    <div class="title-divider">
+      <div class="divider-line"></div>
+      <div class="divider-diamond"></div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="title-sub">Life Simulator</div>
+    <div class="tagline">บริษัทวินเทค — WINTECH CO.</div>
+    <div class="bottom-ornament">— ◆ ◇ ◆ —</div>
+  </div>
+
+  <!-- Auth Panel -->
+  <div class="auth-panel">
+    <div class="panel-header">
+      <span class="panel-emblem">🏯</span>
+      <div class="panel-title">ราชสำนักดิจิทัล</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">เข้าสู่ระบบ</button>
+      <button class="tab" onclick="switchTab('register')">สมัครสมาชิก</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="form-login" class="form active">
+      <div class="msg-box" id="login-msg"></div>
+      <div class="field"><label>ชื่อผู้ใช้</label><input id="login-username" placeholder="กรอกชื่อผู้ใช้" autocomplete="username"></div>
+      <div class="field"><label>รหัสผ่าน</label><input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button class="btn-primary" onclick="doLogin()">⚔ เข้าสู่ราชสำนัก</button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="form-register" class="form">
+      <div class="msg-box" id="register-msg"></div>
+      <div class="field"><label>ชื่อผู้ใช้</label><input id="reg-username" placeholder="ตั้งชื่อผู้ใช้ (อย่างน้อย 3 ตัว)"></div>
+      <div class="field"><label>ชื่อที่แสดง</label><input id="reg-display" placeholder="ชื่อที่จะแสดงในระบบ"></div>
+      <div class="field"><label>รหัสผ่าน</label><input id="reg-password" type="password" placeholder="อย่างน้อย 6 ตัวอักษร"></div>
+      <div class="field"><label>ยืนยันรหัสผ่าน</label><input id="reg-confirm" type="password" placeholder="พิมพ์รหัสผ่านอีกครั้ง"></div>
+      <button class="btn-primary" onclick="doRegister()">✦ สมัครสมาชิก</button>
+    </div>
+
+    <div class="footer-text">อาณาจักรสยาม ค่าย © ๒๕๖๙</div>
+  </div>
+
+</div>
+
+
+<style>
+/* Lore Section */
+.lore-section{
+  position:relative;z-index:10;
+  max-width:700px;margin:0 auto;padding:0 40px 60px;
+}
+.lore-card{
+  background:linear-gradient(160deg,rgba(42,21,0,0.9),rgba(20,10,0,0.95));
+  border:1px solid rgba(212,160,23,0.3);border-radius:4px;
+  padding:40px;position:relative;
+  box-shadow:0 0 60px rgba(0,0,0,0.6);
+}
+.lore-card::before,.lore-card::after{content:'';position:absolute;width:24px;height:24px;border-color:var(--gold);border-style:solid;opacity:0.4}
+.lore-card::before{top:8px;left:8px;border-width:2px 0 0 2px}
+.lore-card::after{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.lore-year{
+  font-family:'Cinzel Decorative',serif;font-size:22px;
+  color:var(--gold);text-align:center;margin-bottom:6px;
+  text-shadow:0 0 20px rgba(212,160,23,0.5);
+}
+.lore-subtitle{
+  text-align:center;font-family:'Cinzel',serif;font-size:12px;
+  color:var(--gold-dark);letter-spacing:4px;margin-bottom:28px;
+  padding-bottom:20px;border-bottom:1px solid rgba(212,160,23,0.2);
+}
+.lore-text{
+  font-size:15px;line-height:2;color:rgba(245,230,200,0.85);
+  font-family:'Sarabun',sans-serif;margin-bottom:16px;
+}
+.lore-text.highlight{
+  color:var(--gold-light);font-size:16px;
+  text-shadow:0 0 10px rgba(212,160,23,0.3);
+}
+.lore-divider{
+  display:flex;align-items:center;gap:12px;margin:20px 0;
+}
+.lore-divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(212,160,23,0.3),transparent)}
+.lore-divider-icon{color:var(--gold);opacity:0.6;font-size:14px}
+.social-buttons{display:flex;gap:14px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+.social-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:13px 24px;border-radius:2px;
+  font-family:'Cinzel',serif;font-size:13px;font-weight:700;
+  text-decoration:none;letter-spacing:1px;
+  transition:all .2s;border:1px solid;cursor:pointer;
+}
+.social-btn-fb{
+  background:rgba(24,119,242,0.15);color:#6BA3FF;
+  border-color:rgba(24,119,242,0.4);
+}
+.social-btn-fb:hover{background:rgba(24,119,242,0.3);transform:translateY(-2px);box-shadow:0 4px 20px rgba(24,119,242,0.3)}
+.social-btn-dc{
+  background:rgba(88,101,242,0.15);color:#9BA8FF;
+  border-color:rgba(88,101,242,0.4);
+}
+.social-btn-dc:hover{background:rgba(88,101,242,0.3);transform:translateY(-2px);box-shadow:0 4px 20px rgba(88,101,242,0.3)}
+</style>
+
+<div class="lore-section">
+  <div class="lore-card">
+    <div class="lore-year">ปี ค.ศ. 1767</div>
+    <div class="lore-subtitle">พ.ศ. 2310 — แผ่นดินสยาม</div>
+
+    <p class="lore-text highlight">
+      แผ่นดินสยามไม่ได้สงบสุขเหมือนในอดีตอีกต่อไปแล้ว...
+    </p>
+
+    <p class="lore-text">
+      เมืองและจังหวัดต่างๆ ทั้งขนาดใหญ่และขนาดเล็ก เริ่มแสดงท่าทีต่อต้าน ⚔️<br>
+      ไม่เต็มใจที่จะแสดงความจงรักภักดีต่อเมืองหลวงอีกต่อไป
+    </p>
+
+    <p class="lore-text">
+      ชาวเมืองเล็กๆ เริ่มคิดหนัก พวกเขาเริ่มโต้เถียงกัน ⚔️<br>
+      พวกเขาปฏิเสธที่จะต่อสู้กับกษัตริย์องค์เก่า 👑❌
+    </p>
+
+    <div class="lore-divider">
+      <div class="lore-divider-line"></div>
+      <span class="lore-divider-icon">⚔️</span>
+      <div class="lore-divider-line"></div>
+    </div>
+
+    <p class="lore-text">
+      ชาวเมืองบางส่วนประกาศอิสรภาพ 🏴<br>
+      บางคนแอบสะสมอาวุธ รอคอยวันแห่งการก่อกบฏ 🗡️💣
+    </p>
+
+    <p class="lore-text">
+      ท่ามกลางเงามืดแห่งความโกลาหล 🌑<br>
+      พลังใหม่กำลังก่อตัวขึ้นอย่างเงียบๆ 🐉
+    </p>
+
+    <div class="lore-divider">
+      <div class="lore-divider-line"></div>
+      <span class="lore-divider-icon">🌑</span>
+      <div class="lore-divider-line"></div>
+    </div>
+
+    <p class="lore-text highlight" style="text-align:center">
+      และในช่วงเวลาแห่งความแตกแยกนี้... ⚡<br>
+      ชะตากรรมของอาณาจักรขึ้นอยู่กับผู้ที่จะตัดสินมัน 🧭👤
+    </p>
+
+    <div class="social-buttons">
+      <a href="https://www.facebook.com/groups/1253948663556474?locale=th_TH" target="_blank" class="social-btn social-btn-fb">
+        <span>📘</span> กลุ่ม Facebook
+      </a>
+      <a href="https://discord.gg/VxqNeEWBye" target="_blank" class="social-btn social-btn-dc">
+        <span>💬</span> Discord Server
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+// Stars
+var starsEl = document.getElementById('stars');
+for (var i = 0; i < 150; i++) {
+  var s = document.createElement('div');
+  s.className = 'star';
+  var size = Math.random() * 2.5 + 0.5;
+  s.style.cssText = 'width:' + size + 'px;height:' + size + 'px;top:' + Math.random() * 100 + '%;left:' + Math.random() * 100 + '%;--o:' + (Math.random() * 0.7 + 0.1) + ';--d:' + (Math.random() * 4 + 2) + 's;animation-delay:' + Math.random() * 5 + 's';
+  starsEl.appendChild(s);
+}
+
+// Particles
+for (var j = 0; j < 20; j++) {
+  var p = document.createElement('div');
+  p.className = 'particle';
+  p.style.cssText = 'left:' + Math.random() * 100 + '%;--d:' + (Math.random() * 8 + 4) + 's;--dx:' + (Math.random() * 60 - 30) + 'px;animation-delay:' + Math.random() * 8 + 's';
+  document.body.appendChild(p);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.form').forEach(function(f) { f.classList.remove('active'); });
+  event.target.classList.add('active');
+  document.getElementById('form-' + tab).classList.add('active');
+}
+
+function showMsg(id, msg, ok) {
+  var el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'msg-box ' + (ok ? 'msg-ok' : 'msg-err');
+  el.style.display = 'block';
+}
+
+async function doLogin() {
+  var username = document.getElementById('login-username').value.trim();
+  var password = document.getElementById('login-password').value;
+  if (!username || !password) return showMsg('login-msg', 'กรุณากรอกให้ครบ', false);
+  var res = await fetch('/api/login', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({username, password})
+  });
+  var data = await res.json();
+  if (data.ok) {
+    showMsg('login-msg', 'เข้าสู่ระบบสำเร็จ กำลังนำเข้าสู่ราชสำนัก...', true);
+    setTimeout(function() { window.location.href = '/dashboard'; }, 800);
+  } else {
+    showMsg('login-msg', data.msg, false);
+  }
+}
+
+async function doRegister() {
+  var username = document.getElementById('reg-username').value.trim();
+  var displayName = document.getElementById('reg-display').value.trim();
+  var password = document.getElementById('reg-password').value;
+  var confirm = document.getElementById('reg-confirm').value;
+  if (!username || !password) return showMsg('register-msg', 'กรุณากรอกให้ครบ', false);
+  if (password !== confirm) return showMsg('register-msg', 'รหัสผ่านไม่ตรงกัน', false);
+  var res = await fetch('/api/register', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({username, password, displayName})
+  });
+  var data = await res.json();
+  showMsg('register-msg', data.msg, data.ok);
+  if (data.ok) {
+    setTimeout(function() { switchTab('login'); }, 1500);
+  }
+}
+
+// Enter key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var activeForm = document.querySelector('.form.active').id;
+    if (activeForm === 'form-login') doLogin();
+    else doRegister();
+  }
+});
+</script>
+</body>
+</html>

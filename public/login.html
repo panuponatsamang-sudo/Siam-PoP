@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>สยาม ค่าย — เข้าสู่ระบบ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#D4A017;--gold-dark:#8B6914;--brown:#1C0F00;--brown-2:#2A1500;--brown-3:#3D2200;--brown-4:#5C3400;--cream:#F5E6C8;--border:rgba(212,160,23,0.2);--border-bright:rgba(212,160,23,0.5)}
+body{min-height:100vh;background:var(--brown);display:flex;align-items:center;justify-content:center;font-family:'Sarabun',sans-serif;background-image:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 4L44 16L56 16L46 24L50 36L40 28L30 36L34 24L24 16L36 16Z' fill='%23D4A017' fill-opacity='0.025'/%3E%3C/svg%3E")}
+.card{background:linear-gradient(160deg,var(--brown-2),var(--brown-3));border:1px solid var(--border-bright);border-radius:4px;padding:48px 40px;width:100%;max-width:420px;position:relative;box-shadow:0 0 60px rgba(0,0,0,0.8)}
+.card::before,.card::after{content:'';position:absolute;width:40px;height:40px;border-color:var(--gold);border-style:solid;opacity:0.4}
+.card::before{top:8px;left:8px;border-width:2px 0 0 2px}
+.card::after{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.logo{text-align:center;margin-bottom:32px}
+.logo-icon{font-size:52px;display:block;margin-bottom:12px}
+.logo h1{font-family:'Cinzel',serif;font-size:22px;color:var(--gold);letter-spacing:3px}
+.logo p{color:var(--gold-dark);font-size:11px;letter-spacing:4px;margin-top:6px}
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0 24px}
+.divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dark),transparent)}
+.error-box{background:rgba(180,30,30,0.2);border:1px solid rgba(180,30,30,0.4);border-radius:4px;color:#ffaaaa;font-size:13px;padding:12px;margin-bottom:20px;text-align:center;display:none}
+.field{margin-bottom:16px}
+label{display:block;color:var(--gold-dark);font-size:11px;margin-bottom:6px;letter-spacing:3px;font-weight:600}
+input{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-bottom:1px solid var(--border-bright);border-radius:2px;padding:12px 16px;color:var(--cream);font-family:'Sarabun',sans-serif;font-size:15px;outline:none;transition:all 0.2s}
+input:focus{border-color:var(--gold);background:rgba(212,160,23,0.05)}
+input::placeholder{color:var(--brown-4)}
+button{width:100%;padding:14px;margin-top:8px;background:linear-gradient(135deg,var(--brown-4),var(--gold-dark));border:1px solid var(--gold);border-radius:2px;color:var(--cream);font-family:'Cinzel',serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:2px}
+button:hover{background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--brown);transform:translateY(-1px)}
+.footer{text-align:center;color:var(--brown-4);font-size:10px;letter-spacing:3px;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <span class="logo-icon">🏯</span>
+    <h1>สยาม ค่าย</h1>
+    <p>บริษัทวินเทค — WINTECH CO.</p>
+  </div>
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span style="color:var(--gold);opacity:0.6">✦</span>
+    <div class="divider-line"></div>
+  </div>
+  <div class="error-box" id="error-box"></div>
+  <form id="login-form">
+    <div class="field">
+      <label>ชื่อผู้ใช้</label>
+      <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้" required autocomplete="username">
+    </div>
+    <div class="field">
+      <label>รหัสผ่าน</label>
+      <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+    </div>
+    <button type="submit">⚔ เข้าสู่ราชสำนัก</button>
+  </form>
+  <div class="footer">อาณาจักรสยาม ค่าย © ๒๕๖๙</div>
+</div>
+<script>
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var username = document.getElementById('username').value;
+  var password = document.getElementById('password').value;
+  var res = await fetch('/api/login', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({username, password})
+  });
+  var data = await res.json();
+  if (data.ok) {
+    window.location.href = '/';
+  } else {
+    var eb = document.getElementById('error-box');
+    eb.textContent = data.msg;
+    eb.style.display = 'block';
+  }
+});
+</script>
+</body>
+</html>

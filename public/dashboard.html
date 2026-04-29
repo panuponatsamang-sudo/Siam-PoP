@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>สยาม ค่าย — ราชสำนัก</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#D4A017;--gold-light:#F5C842;--gold-dark:#8B6914;
+  --brown:#1C0F00;--brown-2:#2A1500;--brown-3:#3D2200;--brown-4:#5C3400;
+  --cream:#F5E6C8;--cream-dim:#C4A882;
+  --border:rgba(212,160,23,0.2);--border-bright:rgba(212,160,23,0.5);
+}
+body{background:var(--brown);color:var(--cream);font-family:'Sarabun',sans-serif;min-height:100vh;display:flex}
+.sidebar{width:240px;min-height:100vh;position:fixed;top:0;left:0;bottom:0;background:rgba(10,7,0,0.98);border-right:1px solid var(--border-bright);display:flex;flex-direction:column;z-index:50}
+.sidebar-top{padding:24px 20px 20px;border-bottom:1px solid var(--border);text-align:center}
+.sidebar-emblem{font-size:36px;display:block;margin-bottom:8px}
+.sidebar-title{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);letter-spacing:2px}
+.sidebar-sub{font-size:10px;color:var(--gold-dark);letter-spacing:3px;margin-top:2px}
+.nav{padding:12px 0;flex:1;overflow-y:auto}
+.nav-label{padding:12px 20px 4px;font-size:9px;color:var(--brown-4);letter-spacing:4px;font-weight:700}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;color:var(--cream-dim);font-size:14px;font-weight:600;transition:all 0.15s;border-left:2px solid transparent;user-select:none}
+.nav-item:hover{color:var(--gold-light);background:rgba(212,160,23,0.05)}
+.nav-item.active{color:var(--gold);background:rgba(212,160,23,0.08);border-left-color:var(--gold)}
+.sidebar-user{padding:14px 20px;border-top:1px solid var(--border);background:rgba(0,0,0,0.2)}
+.user-name{font-size:14px;font-weight:700;color:var(--gold-light);margin-bottom:4px}
+.user-badge{margin:4px 0}
+.user-id{font-size:11px;color:var(--brown-4)}
+.logout-btn{display:block;text-align:center;padding:8px;margin-top:10px;border:1px solid var(--border);border-radius:2px;color:var(--brown-4);font-size:12px;text-decoration:none;transition:all 0.2s;cursor:pointer;background:none;width:100%}
+.logout-btn:hover{color:#ff8888;border-color:rgba(255,100,100,0.3)}
+.main{margin-left:240px;flex:1;padding:28px;min-height:100vh}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.page-title{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);letter-spacing:2px}
+.page-sub{color:var(--brown-4);font-size:12px;margin-top:4px;letter-spacing:1px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+.stat{background:linear-gradient(135deg,var(--brown-2),var(--brown-3));border:1px solid var(--border);border-top:2px solid var(--gold-dark);border-radius:2px;padding:18px}
+.stat-icon{font-size:22px;margin-bottom:6px;display:block}
+.stat-label{font-size:10px;color:var(--brown-4);letter-spacing:3px;margin-bottom:4px;font-weight:700}
+.stat-value{font-family:'Cinzel',serif;font-size:30px;font-weight:700;color:var(--gold)}
+.stat-sub{font-size:11px;color:var(--brown-4);margin-top:4px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.card{background:linear-gradient(135deg,var(--brown-2),var(--brown-3));border:1px solid var(--border);border-radius:2px;padding:20px;margin-bottom:14px}
+.card-title{font-family:'Cinzel',serif;font-size:11px;color:var(--gold-dark);letter-spacing:3px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.card-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.card-title-row span{font-family:'Cinzel',serif;font-size:11px;color:var(--gold-dark);letter-spacing:3px}
+.feed{max-height:360px;overflow-y:auto}
+.feed-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(212,160,23,0.05)}
+.feed-item:last-child{border-bottom:none}
+.feed-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:1px solid}
+.feed-text{flex:1}
+.feed-main{font-size:14px;color:var(--cream);font-weight:600}
+.feed-time{font-size:11px;color:var(--brown-4);margin-top:2px}
+.feed-empty{color:var(--brown-4);font-size:13px;text-align:center;padding:24px;font-family:'Cinzel',serif;letter-spacing:1px}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--gold);margin-left:12px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.form-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.field{flex:1;min-width:140px}
+.field label{display:block;font-size:10px;color:var(--brown-4);margin-bottom:6px;letter-spacing:3px;font-weight:700}
+input,select{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-bottom:1px solid var(--border-bright);border-radius:2px;padding:10px 14px;color:var(--cream);font-family:'Sarabun',sans-serif;font-size:14px;outline:none;transition:all 0.2s}
+input:focus,select:focus{border-color:var(--gold)}
+input::placeholder{color:var(--brown-4)}
+select option{background:var(--brown-2)}
+.btn{padding:10px 18px;border-radius:2px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.btn-gold{background:linear-gradient(135deg,var(--brown-4),var(--gold-dark));color:var(--cream);border:1px solid var(--gold)}
+.btn-gold:hover{background:linear-gradient(135deg,var(--gold-dark),var(--gold));color:var(--brown)}
+.btn-red{background:rgba(120,20,20,0.6);color:#ffaaaa;border:1px solid rgba(180,50,50,0.4)}
+.btn-red:hover{background:rgba(180,30,30,0.8)}
+.btn-green{background:rgba(20,80,40,0.6);color:#aaffcc;border:1px solid rgba(50,150,80,0.4)}
+.btn-green:hover{background:rgba(30,120,60,0.8)}
+.btn-blue{background:rgba(20,40,120,0.6);color:#aaccff;border:1px solid rgba(50,80,180,0.4)}
+.btn-blue:hover{background:rgba(30,60,180,0.8)}
+.btn-ghost{background:transparent;color:var(--brown-4);border:1px solid var(--border);padding:6px 12px;font-size:12px}
+.btn-ghost:hover{color:#ff9999}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:10px 14px;font-size:10px;color:var(--gold-dark);letter-spacing:2px;border-bottom:1px solid var(--border);font-weight:700}
+td{padding:11px 14px;font-size:14px;border-bottom:1px solid rgba(212,160,23,0.05);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot-on{background:var(--gold);box-shadow:0 0 6px rgba(212,160,23,0.5)}
+.dot-off{background:var(--brown-3)}
+.mono{font-size:12px;color:var(--brown-4)}
+.player-card{background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:4px;padding:12px 16px;margin-bottom:8px;cursor:pointer;transition:all 0.15s}
+.player-card:hover{border-color:var(--gold);background:rgba(212,160,23,0.05)}
+.player-card.selected{border-color:var(--gold);background:rgba(212,160,23,0.08)}
+.player-card-name{font-size:15px;font-weight:700;color:var(--cream);margin-bottom:4px}
+.player-card-info{font-size:12px;color:var(--brown-4)}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:var(--brown-4);font-size:12px;letter-spacing:1px}
+.detail-value{color:var(--cream);font-weight:600}
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:2px;font-size:14px;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none;border-left:3px solid}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{background:rgba(20,60,20,0.97);border-left-color:var(--gold);color:var(--gold)}
+.history-filter{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:12px;background:rgba(0,0,0,0.2);border-radius:4px;margin-bottom:14px;border:1px solid var(--border)}
+.history-filter label{font-size:10px;color:var(--brown-4);letter-spacing:2px;display:block;margin-bottom:4px;font-weight:600}
+.filter-group{flex:1;min-width:120px}
+.history-list{max-height:550px;overflow-y:auto}
+.history-item{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-bottom:1px solid rgba(212,160,23,0.05);transition:background .15s}
+.history-item:hover{background:rgba(212,160,23,0.03)}
+.history-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:1px solid}
+.history-content{flex:1}
+.history-text{font-size:13px;color:var(--cream);font-weight:600}
+.history-time{font-size:11px;color:var(--brown-4);margin-top:2px}
+.history-amount{font-family:Cinzel,serif;font-size:15px;font-weight:700;color:var(--gold);white-space:nowrap}
+.tab-bar{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;overflow-x:auto}
+.tab-btn{padding:8px 16px;border:none;background:none;color:var(--brown-4);font-family:Sarabun,sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-btn:hover{color:var(--cream)}
+.toast.err{background:rgba(60,10,10,0.97);border-left-color:#cc4444;color:#ffaaaa}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-top">
+    <span class="sidebar-emblem">🏯</span>
+    <div class="sidebar-title">สยาม ค่าย</div>
+    <div class="sidebar-sub">WINTECH CO.</div>
+  </div>
+  <nav class="nav" id="nav-menu">
+    <div class="nav-label">ราชสำนัก</div>
+    <div class="nav-item active" data-page="dashboard">📜 ภาพรวม</div>
+    <div class="nav-item" data-page="feed">⚡ Live Feed <span class="live"><span class="live-dot"></span>LIVE</span></div>
+    <div class="nav-item" data-page="chat">💬 บันทึกแชท</div>
+    <div class="nav-item" data-page="mapplayers">🗺️ ผู้เล่นในแมพ</div>
+    <div class="nav-item" data-page="online">👥 ผู้ร่วมรบ</div>
+    <div class="nav-item" data-page="moneylog">💸 บันทึกเงิน</div>
+    <div class="nav-item" data-page="transferlog">💱 บันทึกโอนเงิน</div>
+    <div class="nav-item" data-page="history">🗂️ ประวัติย้อนหลัง</div>
+    <div class="nav-item" data-page="prices">💰 ราคาสินค้า</div>
+    <div class="nav-item" data-page="teamlog">🏳️ เปลี่ยนทีม</div>
+    <div class="nav-item" data-page="ranklog">🏆 เลื่อนยศ</div>
+    <div class="nav-item" data-page="fetter">⛓️ โซ่ตรวน</div>
+    <div class="nav-item" data-page="war">🏯 จัดสงคราม</div>
+    <div class="nav-item" data-page="ban">⚔️ ขับไล่ผู้ทรยศ</div>
+    <div class="nav-item" data-page="manage">👑 จัดการไพร่พล</div>
+    <div class="nav-item" data-page="resetserver">🔄 รีเซิร์ฟเวอร์</div>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-name" id="user-name">-</div>
+    <div class="user-badge" id="user-badge"></div>
+    <div class="user-id" id="user-id">-</div>
+    <button class="logout-btn" onclick="doLogout()">✦ ออกจากราชสำนัก</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div id="page-dashboard" class="page active">
+    <div class="page-header">
+      <div class="page-title">📜 ภาพรวมอาณาจักร</div>
+      <div class="page-sub">อัปเดตทุก ๓๐ วินาที</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat"><span class="stat-icon">⚔️</span><div class="stat-label">นักรบในสนามรบ</div><div class="stat-value" id="stat-playing">--</div><div class="stat-sub">ผู้เล่นออนไลน์</div></div>
+      <div class="stat"><span class="stat-icon">🏯</span><div class="stat-label">ป้อมปราการ</div><div class="stat-value" id="stat-servers">--</div><div class="stat-sub">เซิร์ฟเวอร์</div></div>
+      <div class="stat"><span class="stat-icon">🛡️</span><div class="stat-label">ทหารราชสำนัก</div><div class="stat-value" id="stat-online">--</div><div class="stat-sub">ผู้ใช้ระบบ</div></div>
+      <div class="stat"><span class="stat-icon">📜</span><div class="stat-label">พงศาวดาร</div><div class="stat-value" id="stat-visits" style="font-size:20px;margin-top:4px">--</div><div class="stat-sub">ยอดเยี่ยมชม</div></div>
+    </div>
+    <!-- เนื้อเรื่อง -->
+    <div class="card" style="margin-bottom:14px;border-top:2px solid var(--gold-dark);background:linear-gradient(135deg,rgba(42,21,0,0.8),rgba(20,10,0,0.9))">
+      <div class="card-title" style="text-align:center;font-size:13px;letter-spacing:4px">📜 พงศาวดารแห่งอาณาจักร</div>
+      <div style="font-family:'Cinzel',serif;font-size:18px;color:var(--gold);text-align:center;margin-bottom:6px;text-shadow:0 0 20px rgba(212,160,23,0.5)">
+        ปี ค.ศ. 1767 — พ.ศ. 2310
+      </div>
+      <div style="text-align:center;font-size:11px;color:var(--gold-dark);letter-spacing:3px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(212,160,23,0.2)">
+        แผ่นดินสยาม
+      </div>
+      <div style="font-size:14px;line-height:2;color:rgba(245,230,200,0.85);margin-bottom:12px">
+        แผ่นดินสยามไม่ได้สงบสุขเหมือนในอดีตอีกต่อไปแล้ว เมืองและจังหวัดต่างๆ ทั้งขนาดใหญ่และขนาดเล็ก เริ่มแสดงท่าทีต่อต้าน ⚔️ ไม่เต็มใจที่จะแสดงความจงรักภักดีต่อเมืองหลวงอีกต่อไป
+      </div>
+      <div style="font-size:14px;line-height:2;color:rgba(245,230,200,0.85);margin-bottom:12px">
+        ชาวเมืองเล็กๆ เริ่มคิดหนัก พวกเขาเริ่มโต้เถียงกัน ⚔️ พวกเขาปฏิเสธที่จะต่อสู้กับกษัตริย์องค์เก่า 👑❌ ชาวเมืองบางส่วนประกาศอิสรภาพ 🏴 บางคนแอบสะสมอาวุธ รอคอยวันแห่งการก่อกบฏ 🗡️💣
+      </div>
+      <div style="font-size:14px;line-height:2;color:rgba(245,230,200,0.85);margin-bottom:16px">
+        ท่ามกลางเงามืดแห่งความโกลาหล 🌑 พลังใหม่กำลังก่อตัวขึ้นอย่างเงียบๆ 🐉 และในช่วงเวลาแห่งความแตกแยกนี้... ⚡ ชะตากรรมของอาณาจักรขึ้นอยู่กับผู้ที่จะตัดสินมัน 🧭👤
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <a href="https://www.facebook.com/groups/1253948663556474?locale=th_TH" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:2px;font-family:Sarabun,sans-serif;font-size:13px;font-weight:700;text-decoration:none;background:rgba(24,119,242,0.15);color:#6BA3FF;border:1px solid rgba(24,119,242,0.4);transition:all .2s" onmouseover="this.style.background='rgba(24,119,242,0.3)'" onmouseout="this.style.background='rgba(24,119,242,0.15)'">
+          📘 กลุ่ม Facebook
+        </a>
+        <a href="https://discord.gg/VxqNeEWBye" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:2px;font-family:Sarabun,sans-serif;font-size:13px;font-weight:700;text-decoration:none;background:rgba(88,101,242,0.15);color:#9BA8FF;border:1px solid rgba(88,101,242,0.4);transition:all .2s" onmouseover="this.style.background='rgba(88,101,242,0.3)'" onmouseout="this.style.background='rgba(88,101,242,0.15)'">
+          💬 Discord Server
+        </a>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card"><div class="card-title">บันทึกการรบล่าสุด</div><div class="feed" id="dash-kill-feed"><div class="feed-empty">ยังไม่มีบันทึก</div></div></div>
+      <div class="card"><div class="card-title">การเคลื่อนไหวล่าสุด</div><div class="feed" id="dash-join-feed"><div class="feed-empty">ยังไม่มีการเคลื่อนไหว</div></div></div>
+    </div>
+  </div>
+
+  <div id="page-feed" class="page">
+    <div class="page-header">
+      <div class="page-title">⚡ Live Feed <span class="live"><span class="live-dot"></span>LIVE</span></div>
+      <div class="page-sub">เหตุการณ์ในแมพแบบ Realtime</div>
+    </div>
+    <div class="card">
+      <div class="card-title-row"><span>บันทึกเหตุการณ์</span><button class="btn btn-ghost board-btn" onclick="clearFeed('live-feed')">ล้าง</button></div>
+      <div class="feed" id="live-feed" style="max-height:600px"><div class="feed-empty">รอเหตุการณ์...</div></div>
+    </div>
+  </div>
+
+  <div id="page-chat" class="page">
+    <div class="page-header">
+      <div class="page-title">💬 บันทึกแชท <span class="live"><span class="live-dot"></span>LIVE</span></div>
+      <div class="page-sub">ข้อความแชทจากในเกม</div>
+    </div>
+    <div class="card">
+      <div class="card-title-row"><span>ประวัติการสนทนา</span><button class="btn btn-ghost board-btn" onclick="clearFeed('chat-feed')">ล้าง</button></div>
+      <div class="feed" id="chat-feed" style="max-height:600px"><div class="feed-empty">รอข้อความ...</div></div>
+    </div>
+  </div>
+
+  <div id="page-mapplayers" class="page">
+    <div class="page-header">
+      <div class="page-title">🗺️ ผู้เล่นในแมพ</div>
+      <div class="page-sub">คลิกที่ผู้เล่นเพื่อดูรายละเอียด</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">รายชื่อผู้เล่น</div>
+        <div id="map-player-list"><div class="feed-empty">กำลังโหลด...</div></div>
+      </div>
+      <div class="card hidden" id="player-detail">
+        <div class="card-title">รายละเอียดผู้เล่น</div>
+        <div class="detail-row"><span class="detail-label">ชื่อ</span><span class="detail-value" id="pd-name">-</span></div>
+        <div class="detail-row"><span class="detail-label">USER ID</span><span class="detail-value mono" id="pd-id">-</span></div>
+        <div class="detail-row"><span class="detail-label">เงิน (อัฐ)</span><span class="detail-value" id="pd-money" style="color:var(--gold)">-</span></div>
+        <div class="detail-row"><span class="detail-label">ทีม</span><span class="detail-value" id="pd-team">-</span></div>
+        <div class="detail-row"><span class="detail-label">อุปกรณ์</span><span class="detail-value mono" id="pd-tools" style="font-size:12px">-</span></div>
+        <div id="give-money-section" class="" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+          <input type="hidden" id="give-id">
+          <div class="card-title">🎮 จัดการผู้เล่น</div>
+
+          <div style="margin-bottom:12px">
+            <div class="field"><label>เสกเงิน (อัฐ)</label>
+              <div class="form-row">
+                <input id="give-amount" type="number" placeholder="เช่น 1000">
+                <button class="btn btn-gold" onclick="doGiveMoney()">💰 เสก</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <div class="field"><label>ลดเงิน (อัฐ)</label>
+              <div class="form-row">
+                <input id="reduce-amount" type="number" placeholder="เช่น 500">
+                <button class="btn btn-red" onclick="doReduceMoney()">💸 ลด</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+            <button class="btn btn-green" onclick="doFillFoodWater()" style="flex:1">🍖 เติมอาหาร/น้ำเต็ม</button>
+            <button class="btn btn-red" onclick="doClearInventory()" style="flex:1">🗑️ ลบของทั้งหมด</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-online" class="page">
+    <div class="page-header">
+      <div class="page-title">👥 ผู้ร่วมรบ</div>
+      <div class="page-sub">รายชื่อผู้ใช้ที่ล็อกอินอยู่</div>
+    </div>
+    <div class="card">
+      <div class="card-title">รายชื่อผู้ร่วมรบ</div>
+      <table><thead><tr><th>สถานะ</th><th>นาม</th><th>ชื่อผู้ใช้</th><th>ยศ</th><th>เข้าเมื่อ</th></tr></thead>
+      <tbody id="online-list"><tr><td colspan="5" style="color:var(--brown-4);text-align:center;padding:24px">กำลังโหลด...</td></tr></tbody></table>
+    </div>
+  </div>
+
+
+  <!-- บันทึกโอนเงิน -->
+  <div id="page-transferlog" class="page">
+    <div class="page-header">
+      <div class="page-title">💱 บันทึกการโอนเงิน</div>
+      <div class="page-sub">ประวัติการโอนเงินระหว่างผู้เล่นทั้งหมด</div>
+    </div>
+    <div class="card">
+      <div class="card-title-row">
+        <span>ประวัติการโอน <span id="transfer-count" class="mono"></span></span>
+        <button class="btn btn-ghost board-btn" onclick="clearFeed('transferlog-feed')">ล้าง</button>
+      </div>
+      <div id="transferlog-feed" style="max-height:600px;overflow-y:auto"><div class="feed-empty">รอข้อมูล...</div></div>
+    </div>
+  </div>
+
+  <!-- บันทึกเงิน -->
+  <div id="page-moneylog" class="page">
+    <div class="page-header">
+      <div class="page-title">💸 บันทึกการเปลี่ยนเงิน</div>
+      <div class="page-sub">ติดตามการเปลี่ยนแปลงเงินของผู้เล่น Realtime</div>
+    </div>
+    <div class="card">
+      <div class="card-title-row"><span>บันทึกการเงิน</span><button class="btn btn-ghost board-btn" onclick="clearFeed('moneylog-feed')">ล้าง</button></div>
+      <div class="feed" id="moneylog-feed" style="max-height:600px"><div class="feed-empty">รอการเปลี่ยนแปลงเงิน...</div></div>
+    </div>
+  </div>
+
+  <!-- โซ่ตรวน -->
+  <div id="page-fetter" class="page">
+    <div class="page-header">
+      <div class="page-title">⛓️ ระบบโซ่ตรวน</div>
+      <div class="page-sub">ล็อคและปลดโซ่ตรวนผู้เล่น</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⛓️ ล็อคโซ่ตรวน</div>
+      <div class="form-row">
+        <div class="field"><label>ชื่อผู้เล่น (Roblox Username)</label><input id="fetter-lock-name" placeholder="เช่น PlayerName"></div>
+        <button class="btn btn-red" onclick="doFetter('lock')">⛓️ ล็อค</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔓 ปลดโซ่ตรวน</div>
+      <div class="form-row">
+        <div class="field"><label>ชื่อผู้เล่น (Roblox Username)</label><input id="fetter-unlock-name" placeholder="เช่น PlayerName"></div>
+        <button class="btn btn-green" onclick="doFetter('unlock')">🔓 ปลด</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">บันทึกการใช้โซ่ตรวน</div>
+      <div class="feed" id="fetter-feed" style="max-height:400px"><div class="feed-empty">ยังไม่มีบันทึก</div></div>
+    </div>
+  </div>
+
+
+  <!-- ราคาสินค้า -->
+  <div id="page-prices" class="page">
+    <div class="page-header">
+      <div class="page-title">💰 ราคาสินค้า</div>
+      <div class="page-sub" id="prices-updated">อัปเดตทุก 1 ชั่วโมง</div>
+    </div>
+    <div class="card">
+      <div id="prices-round-bar" style="display:none;background:rgba(212,160,23,0.08);border:1px solid rgba(212,160,23,0.2);border-radius:4px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-family:Cinzel,serif;font-size:16px;color:var(--gold)" id="prices-label">—</div>
+          <div style="font-size:11px;color:var(--brown-4);margin-top:2px" id="prices-round-info"></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--brown-4)" id="prices-updated">รอข้อมูล...</div>
+          <div style="font-size:11px;color:var(--brown-4)" id="prices-count"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px" id="prices-grid">
+        <div class="feed-empty">รอข้อมูลราคา...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- เปลี่ยนทีม -->
+  <div id="page-teamlog" class="page">
+    <div class="page-header">
+      <div class="page-title">🏳️ บันทึกเปลี่ยนทีม</div>
+      <div class="page-sub">ติดตามการย้ายทีมของผู้เล่น Realtime</div>
+    </div>
+    <div class="card">
+      <div class="card-title-row"><span>บันทึกการย้ายทีม</span><button class="btn btn-ghost board-btn" onclick="clearFeed('teamlog-feed')">ล้าง</button></div>
+      <div class="feed" id="teamlog-feed" style="max-height:600px"><div class="feed-empty">รอการเปลี่ยนทีม...</div></div>
+    </div>
+  </div>
+
+  <!-- เลื่อนยศ -->
+  <div id="page-ranklog" class="page">
+    <div class="page-header">
+      <div class="page-title">🏆 บันทึกเลื่อนยศ</div>
+      <div class="page-sub">ติดตามการเลื่อนยศในกลุ่ม Roblox Realtime</div>
+    </div>
+    <div class="card">
+      <div class="card-title-row"><span>บันทึกการเลื่อนยศ</span><button class="btn btn-ghost board-btn" onclick="clearFeed('ranklog-feed')">ล้าง</button></div>
+      <div class="feed" id="ranklog-feed" style="max-height:600px"><div class="feed-empty">รอการเลื่อนยศ...</div></div>
+    </div>
+  </div>
+
+
+  <div id="page-war" class="page">
+    <div class="page-header">
+      <div class="page-title">🏯 จัดสงคราม</div>
+      <div class="page-sub">ประกาศและจัดการสงครามระหว่างทีม</div>
+    </div>
+
+    <!-- สถานะสงครามปัจจุบัน -->
+    <div class="card" id="war-status-card">
+      <div class="card-title">สถานะสงครามปัจจุบัน</div>
+      <div id="war-status-display">
+        <div class="feed-empty">กำลังตรวจสอบ...</div>
+      </div>
+    </div>
+
+    <!-- เปิดสงคราม -->
+    <div class="card" id="start-war-card">
+      <div class="card-title">⚔️ เปิดสงคราม</div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="field">
+          <label>ทีมที่เปิดสงคราม (ผู้บุก)</label>
+          <select id="war-attack">
+            <option value="">-- เลือกทีม --</option>
+            <option>ล้านนา</option>
+            <option>พิษณุโลก</option>
+            <option>จันทรบูร</option>
+            <option>ไชยสถาน</option>
+            <option>สิงหราช</option>
+            <option>ศรีเทพ</option>
+            <option>ศรีชัยสิงหปุระ</option>
+            <option>วิเศษชัยชาญ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ทีมที่โดนสงคราม (ผู้ถูกบุก)</label>
+          <select id="war-defend">
+            <option value="">-- เลือกทีม --</option>
+            <option>ล้านนา</option>
+            <option>พิษณุโลก</option>
+            <option>จันทรบูร</option>
+            <option>ไชยสถาน</option>
+            <option>สิงหราช</option>
+            <option>ศรีเทพ</option>
+            <option>ศรีชัยสิงหปุระ</option>
+            <option>วิเศษชัยชาญ</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-red" onclick="showWarConfirm('start')">⚔️ ยืนยันเปิดสงคราม (ขั้นที่ 1)</button>
+    </div>
+
+    <!-- ยืนยันขั้นที่ 2 เปิดสงคราม -->
+    <div class="card hidden" id="war-confirm-card">
+      <div class="card-title" style="color:#FF6B00">⚠️ ยืนยันสงคราม — ขั้นที่ 2</div>
+      <div id="war-confirm-info" style="margin-bottom:16px;padding:12px;background:rgba(255,107,0,0.1);border:1px solid rgba(255,107,0,0.3);border-radius:4px;font-size:14px"></div>
+      <div class="field" style="margin-bottom:16px">
+        <label>ใส่ชื่อผู้ยืนยัน (ชื่อในระบบ)</label>
+        <input id="war-confirmedby" placeholder="ชื่อผู้ยืนยันสงคราม">
+      </div>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-red" onclick="confirmWarStart()">✅ ยืนยันประกาศสงคราม</button>
+        <button class="btn btn-ghost" onclick="cancelWarConfirm()">❌ ยกเลิก</button>
+      </div>
+    </div>
+
+    <!-- ยกเลิกสงคราม -->
+    <div class="card hidden" id="end-war-card">
+      <div class="card-title">🏆 ยกเลิก/จบสงคราม</div>
+      <div id="end-war-info" style="margin-bottom:16px;padding:12px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);border-radius:4px;font-size:14px"></div>
+      <div class="form-row" style="margin-bottom:16px">
+        <div class="field">
+          <label>ทีมผู้ชนะ (ยึดได้)</label>
+          <select id="war-winner">
+            <option value="">-- เลือกทีม --</option>
+            <option>ล้านนา</option>
+            <option>พิษณุโลก</option>
+            <option>จันทรบูร</option>
+            <option>ไชยสถาน</option>
+            <option>สิงหราช</option>
+            <option>ศรีเทพ</option>
+            <option>ศรีชัยสิงหปุระ</option>
+            <option>วิเศษชัยชาญ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ทีมผู้แพ้ (ถูกยึด)</label>
+          <select id="war-loser">
+            <option value="">-- เลือกทีม --</option>
+            <option>ล้านนา</option>
+            <option>พิษณุโลก</option>
+            <option>จันทรบูร</option>
+            <option>ไชยสถาน</option>
+            <option>สิงหราช</option>
+            <option>ศรีเทพ</option>
+            <option>ศรีชัยสิงหปุระ</option>
+            <option>วิเศษชัยชาญ</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="showWarConfirm('end')">🏆 ยืนยันจบสงคราม (ขั้นที่ 1)</button>
+    </div>
+
+    <!-- ยืนยันขั้นที่ 2 จบสงคราม -->
+    <div class="card hidden" id="war-end-confirm-card">
+      <div class="card-title" style="color:var(--gold)">⚠️ ยืนยันจบสงคราม — ขั้นที่ 2</div>
+      <div id="war-end-confirm-info" style="margin-bottom:16px;padding:12px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.3);border-radius:4px;font-size:14px"></div>
+      <div class="field" style="margin-bottom:16px">
+        <label>ใส่ชื่อผู้ยืนยัน (ชื่อในระบบ)</label>
+        <input id="war-end-confirmedby" placeholder="ชื่อผู้ยืนยันการจบสงคราม">
+      </div>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-gold" onclick="confirmWarEnd()">✅ ยืนยันจบสงคราม</button>
+        <button class="btn btn-ghost" onclick="cancelWarEndConfirm()">❌ ยกเลิก</button>
+      </div>
+    </div>
+
+    <!-- ประวัติสงคราม -->
+    <div class="card">
+      <div class="card-title">📜 ประวัติสงคราม</div>
+      <div id="war-history">
+        <div class="feed-empty">กำลังโหลด...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-ban" class="page">
+    <div class="page-header">
+      <div class="page-title">⚔️ ขับไล่ผู้ทรยศ</div>
+      <div class="page-sub">จัดการการลงโทษผู้เล่น</div>
+    </div>
+    <div class="card">
+      <div class="card-title">ออกหมายขับไล่ถาวร</div>
+      <div class="form-row">
+        <div class="field"><label>ชื่อผู้เล่น หรือ User ID</label><input id="ban-id" placeholder="ชื่อผู้เล่น หรือ 123456789"></div>
+        <div class="field"><label>เหตุผล</label><input id="ban-reason" placeholder="ทรยศต่ออาณาจักร"></div>
+        <button class="btn btn-red" onclick="doBan()">⚔️ แบน</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">แตะ (Kick ชั่วคราว)</div>
+      <div class="form-row">
+        <div class="field"><label>ชื่อผู้เล่น หรือ User ID</label><input id="kick-id" placeholder="ชื่อผู้เล่น หรือ 123456789"></div>
+        <div class="field"><label>เหตุผล</label><input id="kick-reason" placeholder="เหตุผล"></div>
+        <button class="btn btn-blue" onclick="doKick()">👊 แตะ</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">อภัยโทษ</div>
+      <div class="form-row">
+        <div class="field"><label>ชื่อผู้เล่น หรือ User ID</label><input id="unban-id" placeholder="ชื่อผู้เล่น หรือ 123456789"></div>
+        <button class="btn btn-green" onclick="doUnban()">🕊️ อภัยโทษ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-manage" class="page">
+    <div class="page-header">
+      <div class="page-title">👑 จัดการไพร่พล</div>
+      <div class="page-sub">เพิ่มและจัดการสมาชิก</div>
+    </div>
+    <div class="card">
+      <div class="card-title">รับสมัครทหารใหม่</div>
+      <div class="form-row">
+        <div class="field"><label>ชื่อผู้ใช้</label><input id="nu" placeholder="username"></div>
+        <div class="field"><label>รหัสผ่าน</label><input id="np" type="password" placeholder="••••••••"></div>
+        <div class="field"><label>นาม</label><input id="nd" placeholder="ชื่อที่แสดง"></div>
+        <div class="field"><label>ยศ</label>
+          <select id="nr">
+            <option value="member">🛡️ Member</option>
+            <option value="admin">⚔️ Admin</option>
+            <option value="board">🏛️ บอร์ดบริหาร</option>
+            <option value="owner">👑 เจ้าของแมพ</option>
+          </select>
+        </div>
+        <button class="btn btn-gold" onclick="addUser()">+ รับสมัคร</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">บัญชีรายชื่อไพร่พล</div>
+      <div id="user-list-container">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr>
+            <th>สถานะ</th><th>ชื่อผู้ใช้</th><th>รหัสผ่าน</th><th>ยศ</th><th>จัดการ</th>
+          </tr></thead>
+          <tbody id="user-list"></tbody>
+        </table>
+      </div>
+
+      <!-- Edit Panel -->
+      <div id="edit-user-panel" class="hidden" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+        <div class="card-title">✏️ แก้ไขข้อมูล: <span id="edit-username-label" style="color:var(--gold)"></span></div>
+        <input type="hidden" id="edit-username">
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="field"><label>ชื่อที่แสดง</label><input id="edit-display" placeholder="ชื่อที่แสดง"></div>
+          <div class="field"><label>รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)</label><input id="edit-password" type="text" placeholder="รหัสผ่านใหม่"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>ยศ</label>
+            <select id="edit-role">
+              <option value="member">🛡️ สมาชิก</option>
+              <option value="admin">⚔️ Admin</option>
+              <option value="board">🏛️ บอร์ดบริหาร</option>
+              <option value="owner">👑 เจ้าของแมพ</option>
+            </select>
+          </div>
+          <button class="btn btn-gold" onclick="saveEditUser()">💾 บันทึก</button>
+          <button class="btn btn-ghost" onclick="cancelEditUser()">❌ ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ประวัติย้อนหลัง -->
+  <div id="page-history" class="page">
+    <div class="page-header">
+      <div class="page-title">🗂️ ประวัติย้อนหลัง</div>
+      <div class="page-sub">บันทึกเหตุการณ์ทั้งหมดพร้อมกรองตามวันที่และประเภท</div>
+    </div>
+    <div class="card">
+      <!-- Filter -->
+      <div class="history-filter">
+        <div class="filter-group">
+          <label>ประเภท</label>
+          <select id="h-type" style="width:100%">
+            <option value="all">ทั้งหมด</option>
+            <option value="chat">💬 แชท</option>
+            <option value="kill,death">⚔️ การต่อสู้</option>
+            <option value="join,leave">📥 เข้า/ออกแมพ</option>
+            <option value="moneychange">💰 เงิน</option>
+            <option value="transfer">💱 โอนเงิน</option>
+            <option value="teamchange">🏳️ เปลี่ยนทีม</option>
+            <option value="rankchange">🏆 เลื่อนยศ</option>
+            <option value="war_start,war_end">⚔️ สงคราม</option>
+            <option value="fetter">⛓️ โซ่ตรวน</option>
+            <option value="adminaction">⚙️ Admin</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>วันที่เริ่มต้น</label>
+          <input type="date" id="h-from" style="width:100%">
+        </div>
+        <div class="filter-group">
+          <label>วันที่สิ้นสุด</label>
+          <input type="date" id="h-to" style="width:100%">
+        </div>
+        <div class="filter-group" style="min-width:80px">
+          <label>จำนวน</label>
+          <select id="h-limit" style="width:100%">
+            <option value="100">100</option>
+            <option value="300">300</option>
+            <option value="500" selected>500</option>
+            <option value="1000">1000</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <button class="btn btn-gold" onclick="searchHistory()">🔍 ค้นหา</button>
+          <button class="btn btn-ghost" onclick="resetHistory()">รีเซ็ต</button>
+        </div>
+      </div>
+      <div id="h-count" class="mono" style="font-size:12px;color:var(--brown-4);margin-bottom:10px"></div>
+      <div class="history-list" id="h-list"><div class="feed-empty">กดค้นหาเพื่อดูประวัติ</div></div>
+    </div>
+  </div>
+
+  <!-- ประกาศข่าวสาร -->
+  <div id="page-announce" class="page">
+    <div class="page-header">
+      <div class="page-title">📢 ประกาศข่าวสาร</div>
+      <div class="page-sub">บอร์ดบริหารขึ้นไปสามารถโพสต์ประกาศได้</div>
+    </div>
+
+    <!-- กล่องเขียน (board ขึ้นไปเห็น) -->
+    <div class="card board-write-section" id="announce-write-card">
+      <div class="card-title">✍️ เขียนประกาศใหม่</div>
+      <div class="field" style="margin-bottom:10px">
+        <label>หัวข้อประกาศ</label>
+        <input id="ann-title" placeholder="หัวข้อประกาศ" style="font-size:16px;font-weight:700">
+      </div>
+      <!-- Toolbar -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid var(--border)">
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annFormat('bold')" title="ตัวหนา"><b>B</b></button>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annFormat('italic')" title="ตัวเอียง"><i>I</i></button>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annFormat('underline')" title="ขีดเส้นใต้"><u>U</u></button>
+        <div style="width:1px;background:var(--border);margin:0 4px"></div>
+        <select onchange="annFontSize(this.value)" class="" style="background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:2px;padding:4px 8px;color:var(--cream);font-size:12px">
+          <option value="3">ปกติ</option>
+          <option value="4">ใหญ่</option>
+          <option value="5">ใหญ่มาก</option>
+          <option value="2">เล็ก</option>
+        </select>
+        <select onchange="annColor(this.value)" style="background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:2px;padding:4px 8px;color:var(--cream);font-size:12px">
+          <option value="#F5E6C8">ปกติ</option>
+          <option value="#FFD700">ทอง</option>
+          <option value="#FF6B6B">แดง</option>
+          <option value="#6BCB77">เขียว</option>
+          <option value="#4D96FF">น้ำเงิน</option>
+          <option value="#FF922B">ส้ม</option>
+        </select>
+        <div style="width:1px;background:var(--border);margin:0 4px"></div>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annInsertLine()">— เส้นคั่น</button>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annInsertImg()">🖼️ รูปภาพ</button>
+      </div>
+      <!-- Editor -->
+      <div id="ann-editor" contenteditable="true" spellcheck="false"
+        style="min-height:150px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:4px;padding:14px;color:var(--cream);font-size:15px;line-height:1.8;outline:none;margin-bottom:12px"
+        placeholder="เขียนเนื้อหาประกาศที่นี่...">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-gold" onclick="postAnnounce()">📢 โพสต์ประกาศ</button>
+        <button class="btn btn-ghost" onclick="clearAnnounce()">ล้าง</button>
+      </div>
+    </div>
+
+    <!-- รายการประกาศ -->
+    <div id="announce-list"></div>
+  </div>
+
+  <!-- รีเซ็ตข้อมูล -->
+  <div id="page-resetdata" class="page owner-only hidden">
+    <div class="page-header">
+      <div class="page-title">🗑️ รีเซ็ตข้อมูลผู้เล่น</div>
+      <div class="page-sub">⚠️ ดำเนินการด้วยความระมัดระวัง ไม่สามารถกู้คืนได้</div>
+    </div>
+    <div class="card" style="border-top:2px solid #FF5722">
+      <div class="card-title" style="color:#FF5722">🤖 ตรวจสอบ + ยืนยัน 5 ขั้นตอน</div>
+
+      <!-- Step 1 -->
+      <div id="rd-step1">
+        <div style="margin-bottom:12px;padding:12px;background:rgba(255,87,34,0.08);border:1px solid rgba(255,87,34,0.2);border-radius:4px;font-size:13px;color:var(--cream)">
+          ⚠️ การรีเซ็ตข้อมูลจะ<strong style="color:#FF5722">ไม่สามารถกู้คืนได้</strong> โปรดดำเนินการด้วยความระมัดระวัง
+        </div>
+        <div class="field"><label>ขั้นตอนที่ 1 — ชื่อผู้เล่น หรือ User ID</label>
+          <input id="rd-userid" placeholder="ชื่อ หรือ Roblox User ID">
+        </div>
+        <div class="field"><label>ประเภทการรีเซ็ต</label>
+          <select id="rd-type">
+            <option value="money">💰 รีเงินอย่างเดียว (เหลือ 100 อัฐ)</option>
+            <option value="all">🗑️ รีข้อมูลทั้งหมด (เริ่มใหม่)</option>
+          </select>
+        </div>
+        <button class="btn btn-red" onclick="rdStep(2)">ถัดไป →</button>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="rd-step2" class="hidden">
+        <div class="field"><label>ขั้นตอนที่ 2 — ยืนยันชื่อผู้ใช้อีกครั้ง</label>
+          <input id="rd-confirm1" placeholder="พิมพ์ชื่อผู้เล่นอีกครั้ง">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="rdBack(1)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="rdStep(3)">ถัดไป →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 — Robot check -->
+      <div id="rd-step3" class="hidden">
+        <div style="margin-bottom:12px;padding:16px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:4px;text-align:center">
+          <div style="font-size:13px;color:var(--brown-4);margin-bottom:12px;letter-spacing:2px">ขั้นตอนที่ 3 — ยืนยันตัวตน (ไม่ใช่หุ่นยนต์)</div>
+          <div style="font-size:32px;font-family:Cinzel,serif;color:var(--gold);letter-spacing:8px;user-select:none;margin-bottom:10px" id="captcha-display"></div>
+          <div style="font-size:12px;color:var(--brown-4);margin-bottom:10px">พิมพ์ตัวเลขที่เห็นด้านบน</div>
+          <input id="rd-captcha" placeholder="พิมพ์ตัวเลข" style="text-align:center;letter-spacing:4px;font-size:18px;width:160px">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="rdBack(2)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="rdStep(4)">ถัดไป →</button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div id="rd-step4" class="hidden">
+        <div id="rd-summary" style="margin-bottom:16px;padding:16px;background:rgba(255,87,34,0.1);border:1px solid rgba(255,87,34,0.3);border-radius:4px;font-size:14px;color:var(--cream)"></div>
+        <div class="field"><label>ขั้นตอนที่ 4 — ชื่อผู้ดำเนินการ</label>
+          <input id="rd-by" placeholder="ชื่อของคุณ">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="rdBack(3)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="rdStep(5)">ถัดไป →</button>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div id="rd-step5" class="hidden">
+        <div style="margin-bottom:16px;padding:16px;background:rgba(255,87,34,0.15);border:2px solid rgba(255,87,34,0.5);border-radius:4px;text-align:center">
+          <div style="font-size:20px;margin-bottom:8px">⚠️</div>
+          <div style="font-size:14px;color:var(--cream);font-weight:700" id="rd-final-msg"></div>
+        </div>
+        <div class="field"><label>ขั้นตอนที่ 5 — พิมพ์ "CONFIRM_RESET" เพื่อยืนยัน</label>
+          <input id="rd-final" placeholder="CONFIRM_RESET" style="letter-spacing:2px">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="rdBack(4)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="confirmResetData()">🗑️ ยืนยันรีเซ็ต</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- รีเซิร์ฟเวอร์ -->
+  <div id="page-resetserver" class="page">
+    <div class="page-header">
+      <div class="page-title">🔄 รีเซิร์ฟเวอร์</div>
+      <div class="page-sub">Kick ผู้เล่นทุกคนออกจากทุกเซิร์ฟเวอร์</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#FF5722">⚠️ คำเตือน — การรีเซิร์ฟเวอร์จะ Kick ผู้เล่นทุกคนออก</div>
+
+      <!-- ขั้นตอนที่ 1 -->
+      <div id="reset-step1">
+        <div class="field"><label>ขั้นตอนที่ 1 — ชื่อผู้ดำเนินการ</label><input id="reset-by" placeholder="ชื่อผู้ดำเนินการ"></div>
+        <button class="btn btn-red" onclick="resetStep1()">ถัดไป →</button>
+      </div>
+
+      <!-- ขั้นตอนที่ 2 -->
+      <div id="reset-step2" class="hidden">
+        <div class="field"><label>ขั้นตอนที่ 2 — เหตุผลในการรีเซิร์ฟเวอร์</label><input id="reset-reason" placeholder="เหตุผล"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="resetBack(1)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="resetStep2()">ถัดไป →</button>
+        </div>
+      </div>
+
+      <!-- ขั้นตอนที่ 3 -->
+      <div id="reset-step3" class="hidden">
+        <div style="background:rgba(255,87,34,0.1);border:1px solid rgba(255,87,34,0.3);border-radius:4px;padding:16px;margin-bottom:16px">
+          <div style="font-size:14px;color:var(--cream);margin-bottom:4px">ดำเนินการโดย: <strong id="reset-confirm-by"></strong></div>
+          <div style="font-size:14px;color:var(--cream)">เหตุผล: <strong id="reset-confirm-reason"></strong></div>
+        </div>
+        <div class="field"><label>ขั้นตอนที่ 3 — ใส่รหัสผ่านยืนยัน</label><input id="reset-password" type="password" placeholder="รหัสผ่านยืนยัน"></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="resetBack(2)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="confirmReset()">🔄 ยืนยันรีเซิร์ฟเวอร์</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+var ROLES = {
+  owner:  {label:'เจ้าของแมพ', color:'#FFD700', icon:'👑'},
+  board:  {label:'บอร์ดบริหาร', color:'#E8A020', icon:'🏛️'},
+  admin:  {label:'Admin', color:'#C4873A', icon:'⚔️'},
+  member: {label:'Member', color:'#8B6914', icon:'🛡️'}
+};
+
+var currentUser = null;
+var mapPlayers = [];
+var selectedPlayerIdx = -1;
+
+// Init
+window.onload = function() {
+  fetch('/api/me').then(function(r) { return r.json(); }).then(function(user) {
+    if (!user.ok) { window.location.href = '/'; return; }
+    currentUser = user;
+    initUI(user);
+    loadAll();
+    startSSE();
+    setInterval(loadAll, 30000);
+    setInterval(loadMapPlayers, 5000);
+    setInterval(function() {
+      var pricesPage = document.getElementById('page-prices');
+      if (pricesPage && pricesPage.classList.contains('active')) loadPrices();
+    }, 30000);
+  });
+};
+
+function initUI(user) {
+  document.getElementById('user-name').textContent = user.displayName;
+  document.getElementById('user-id').textContent = user.username;
+  var r = ROLES[user.role] || ROLES.member;
+  document.getElementById('user-badge').innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;background:' + r.color + '18;color:' + r.color + ';border:1px solid ' + r.color + '40">' + r.icon + ' ' + r.label + '</span>';
+
+  applyPermissions(user);
+}
+
+// Navigation
+document.getElementById('nav-menu').addEventListener('click', function(e) {
+  var item = e.target.closest('.nav-item');
+  if (!item) return;
+  var page = item.getAttribute('data-page');
+  if (!page) return;
+
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+
+  item.classList.add('active');
+  var pageEl = document.getElementById('page-' + page);
+  if (pageEl) pageEl.classList.add('active');
+
+  if (page === 'mapplayers') loadMapPlayers();
+  if (page === 'war') loadWarStatus();
+  if (page === 'prices') loadPrices();
+  if (page === 'moneylog') loadMoneyLog();
+  if (page === 'transferlog') loadTransferLog();
+  if (page === 'history') { setTodayFilter(); searchHistory(); }
+  if (page === 'announce') { renderAnnouncements(); var isBoard = currentUser && ['owner','board'].includes(currentUser.role); var wc = document.getElementById('announce-write-card'); if (wc) wc.style.display = isBoard ? 'block' : 'none'; }
+  if (page === 'fetter') loadFetterLog();
+  if (page === 'manage') loadUsers();
+  if (page === 'online' || page === 'dashboard') loadAll();
+});
+
+function toast(msg, ok) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (ok ? 'ok' : 'err');
+  setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+
+function api(url, body) {
+  return fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); });
+}
+
+function fmt(iso) {
+  return new Date(iso).toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'});
+}
+
+function fmtNum(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n || 0;
+}
+
+function badge(role) {
+  var r = ROLES[role] || ROLES.member;
+  return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:4px;font-size:11px;font-weight:700;background:' + r.color + '18;color:' + r.color + ';border:1px solid ' + r.color + '40">' + r.icon + ' ' + r.label + '</span>';
+}
+
+function feedItem(ev) {
+  var color = ev.color || '#888';
+  return '<div class="feed-item">' +
+    '<div class="feed-icon" style="background:' + color + '22;border-color:' + color + '44;color:' + color + '">' + ev.icon + '</div>' +
+    '<div class="feed-text"><div class="feed-main">' + ev.text + '</div><div class="feed-time">' + ev.time + '</div></div>' +
+    '</div>';
+}
+
+function renderFeed(id, events) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  if (!events || !events.length) {
+    el.innerHTML = '<div class="feed-empty">ยังไม่มีเหตุการณ์</div>';
+    return;
+  }
+  el.innerHTML = events.map(feedItem).join('');
+}
+
+function clearFeed(id) {
+  var el = document.getElementById(id);
+  if (el) el.innerHTML = '<div class="feed-empty">รอเหตุการณ์...</div>';
+}
+
+function addToFeed(id, ev) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var empty = el.querySelector('.feed-empty');
+  if (empty) empty.remove();
+  el.insertAdjacentHTML('afterbegin', feedItem(ev));
+}
+
+// SSE
+function startSSE() {
+  var es = new EventSource('/events');
+  es.onmessage = function(e) {
+    try {
+      var ev = JSON.parse(e.data);
+      if (ev.type === 'connected') return;
+      if (ev.type === 'playerlist') { loadMapPlayers(); return; }
+      addToFeed('live-feed', ev);
+      if (ev.type === 'kill' || ev.type === 'death') addToFeed('dash-kill-feed', ev);
+      if (ev.type === 'join' || ev.type === 'leave') addToFeed('dash-join-feed', ev);
+      if (ev.type === 'chat') addToFeed('chat-feed', ev);
+      if (ev.type === 'teamchange') addToFeed('teamlog-feed', ev);
+      if (ev.type === 'rankchange') addToFeed('ranklog-feed', ev);
+      if (ev.type === 'prices') {
+        // อัปเดต label ทันที
+        var lbl2 = document.getElementById('prices-label');
+        if (lbl2 && ev.label) lbl2.textContent = ev.label;
+        var rinfo2 = document.getElementById('prices-round-info');
+        if (rinfo2 && ev.round) rinfo2.textContent = 'รอบที่ ' + ev.round + '/' + (ev.total||'?') + ' — เปลี่ยนทุก 1 ชั่วโมง';
+        loadPrices();
+      }
+      if (ev.type === 'transfer') addTransferToLog(ev);
+      if (ev.type === 'moneychange') { addToFeed('moneylog-feed', ev); }
+      if (ev.type === 'fetter') { addToFeed('fetter-feed', ev); }
+    } catch(err) {}
+  };
+}
+
+// Load data
+function loadAll() {
+  Promise.all([
+    fetch('/api/stats').then(function(r) { return r.json(); }),
+    fetch('/api/online').then(function(r) { return r.json(); }),
+    fetch('/api/events').then(function(r) { return r.json(); })
+  ]).then(function(results) {
+    var stats = results[0], users = results[1], events = results[2];
+    document.getElementById('stat-playing').textContent = stats.playing || 0;
+    document.getElementById('stat-servers').textContent = stats.servers || 0;
+    document.getElementById('stat-online').textContent = users.length;
+    document.getElementById('stat-visits').textContent = fmtNum(stats.visits);
+
+    renderFeed('dash-kill-feed', events.filter(function(e) { return e.type === 'kill' || e.type === 'death'; }).slice(0, 10));
+    renderFeed('dash-join-feed', events.filter(function(e) { return e.type === 'join' || e.type === 'leave'; }).slice(0, 10));
+    renderFeed('live-feed', events.slice(0, 50));
+    renderFeed('chat-feed', events.filter(function(e) { return e.type === 'chat'; }).slice(0, 50));
+
+    var ol = document.getElementById('online-list');
+    if (ol) {
+      if (!users.length) {
+        ol.innerHTML = '<tr><td colspan="5" style="color:var(--brown-4);text-align:center;padding:24px">ไม่มีผู้ร่วมรบ</td></tr>';
+      } else {
+        ol.innerHTML = users.map(function(u) {
+          return '<tr>' +
+            '<td><span class="dot dot-on"></span>ออนไลน์</td>' +
+            '<td>' + u.displayName + '</td>' +
+            '<td class="mono">' + u.username + '</td>' +
+            '<td>' + badge(u.role) + '</td>' +
+            '<td class="mono">' + fmt(u.loginTime) + '</td>' +
+            '</tr>';
+        }).join('');
+      }
+    }
+  }).catch(function(err) { console.error(err); });
+}
+
+// Map Players
+function loadMapPlayers() {
+  fetch('/api/players').then(function(r) { return r.json(); }).then(function(players) {
+    mapPlayers = players;
+    var el = document.getElementById('map-player-list');
+    if (!el) return;
+    if (!players || !players.length) {
+      el.innerHTML = '<div class="feed-empty">ไม่มีผู้เล่นในแมพขณะนี้</div>';
+      document.getElementById('player-detail').classList.add('hidden');
+      return;
+    }
+    el.innerHTML = players.map(function(p, i) {
+      return '<div class="player-card" data-idx="' + i + '">' +
+        '<div class="player-card-name">⚔️ ' + p.name + '</div>' +
+        '<div class="player-card-info">💰 ฿' + (p.money || 0).toLocaleString() + ' | 🏳️ ' + (p.team || 'ไม่มีทีม') + '</div>' +
+        '</div>';
+    }).join('');
+
+    document.getElementById('map-player-list').addEventListener('click', function(e) {
+      var card = e.target.closest('.player-card');
+      if (!card) return;
+      var idx = parseInt(card.getAttribute('data-idx'));
+      selectPlayer(idx);
+    });
+  }).catch(function(err) { console.error(err); });
+}
+
+function selectPlayer(idx) {
+  var p = mapPlayers[idx];
+  if (!p) return;
+  selectedPlayerIdx = idx;
+
+  document.getElementById('player-detail').classList.remove('hidden');
+  document.getElementById('pd-name').textContent = p.name;
+  document.getElementById('pd-id').textContent = p.userId;
+  document.getElementById('pd-money').textContent = '฿' + (p.money || 0).toLocaleString();
+  document.getElementById('pd-team').textContent = p.team || 'ไม่มีทีม';
+  document.getElementById('pd-tools').textContent = p.tools && p.tools.length ? p.tools.join(', ') : 'ไม่มี';
+
+  var gi = document.getElementById('give-id');
+  if (gi) gi.value = p.userId;
+
+  document.querySelectorAll('.player-card').forEach(function(c) { c.classList.remove('selected'); });
+  var card = document.querySelector('[data-idx="' + idx + '"]');
+  if (card) card.classList.add('selected');
+}
+
+
+function doReduceMoney() {
+  var userId = document.getElementById('give-id').value.trim();
+  var amount = document.getElementById('reduce-amount').value.trim();
+  if (!userId || !amount) return toast('กรุณาใส่จำนวนเงิน', false);
+  api('/api/admin/cmd', { userId: userId, cmd: 'setmoney', amount: -parseInt(amount) }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) { document.getElementById('reduce-amount').value = ''; setTimeout(loadMapPlayers, 2000); }
+  });
+}
+
+function doClearInventory() {
+  var userId = document.getElementById('give-id').value.trim();
+  var name = document.getElementById('pd-name').textContent;
+  if (!userId) return toast('กรุณาเลือกผู้เล่นก่อน', false);
+  if (!confirm('ยืนยันลบของทั้งหมดของ ' + name + '?')) return;
+  api('/api/admin/cmd', { userId: userId, cmd: 'clearinventory' }).then(function(d) {
+    toast(d.msg, d.ok);
+  });
+}
+
+function doFillFoodWater() {
+  var userId = document.getElementById('give-id').value.trim();
+  if (!userId) return toast('กรุณาเลือกผู้เล่นก่อน', false);
+  api('/api/admin/cmd', { userId: userId, cmd: 'fillfoodwater' }).then(function(d) {
+    toast(d.msg, d.ok);
+  });
+}
+
+function doViewScreen() {
+  var userId = document.getElementById('give-id').value.trim();
+  var name = document.getElementById('pd-name').textContent;
+  if (!userId) return toast('กรุณาเลือกผู้เล่นก่อน', false);
+  document.getElementById('player-screen-view').classList.remove('hidden');
+  document.getElementById('screen-container').innerHTML = '<div style="color:var(--brown-4);padding:20px">📡 กำลังส่งคำขอ screenshot ไปยัง ' + name + '...<br><small>ผู้เล่นต้องกดยืนยันในเกมก่อน</small></div>';
+  api('/api/admin/cmd', { userId: userId, cmd: 'requestscreen' }).then(function(d) {
+    if (!d.ok) toast(d.msg, false);
+  });
+}
+
+function doGiveMoney() {
+  var userId = document.getElementById('give-id').value.trim();
+  var amount = document.getElementById('give-amount').value.trim();
+  if (!userId || !amount) return toast('กรุณากรอกให้ครบ', false);
+  api('/api/givemoney', {userId: userId, amount: amount}).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) {
+      document.getElementById('give-amount').value = '';
+      setTimeout(loadMapPlayers, 2000);
+    }
+  });
+}
+
+// Users
+function loadUsers() {
+  fetch('/api/users').then(function(r) { return r.json(); }).then(function(users) {
+    var el = document.getElementById('user-list');
+    if (!el) return;
+    el.innerHTML = users.map(function(u) {
+      return '<tr>' +
+        '<td><span class="dot ' + (u.online ? 'dot-on' : 'dot-off') + '"></span>' + (u.online ? 'ออนไลน์' : 'ออฟไลน์') + '</td>' +
+        '<td>' + u.displayName + '</td>' +
+        '<td class="mono">' + u.username + '</td>' +
+        '<td>' + badge(u.role) + '</td>' +
+        '<td><button class="btn btn-ghost" onclick="removeUser(\'' + u.username + '\')">ปลดออก</button></td>' +
+        '</tr>';
+    }).join('');
+  });
+}
+
+// Actions
+function doBan() {
+  var id = document.getElementById('ban-id').value.trim();
+  var r = document.getElementById('ban-reason').value.trim();
+  if (!id) return toast('กรุณาใส่ User ID', false);
+  api('/api/ban', {userId: id, reason: r}).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) { document.getElementById('ban-id').value = ''; document.getElementById('ban-reason').value = ''; }
+  });
+}
+
+function doKick() {
+  var id = document.getElementById('kick-id').value.trim();
+  var r = document.getElementById('kick-reason').value.trim();
+  if (!id) return toast('กรุณาใส่ User ID', false);
+  api('/api/kick', {userId: id, reason: r}).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) { document.getElementById('kick-id').value = ''; document.getElementById('kick-reason').value = ''; }
+  });
+}
+
+function doUnban() {
+  var id = document.getElementById('unban-id').value.trim();
+  if (!id) return toast('กรุณาใส่ User ID', false);
+  api('/api/unban', {userId: id}).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) document.getElementById('unban-id').value = '';
+  });
+}
+
+function addUser() {
+  api('/api/users/add', {
+    username: document.getElementById('nu').value.trim(),
+    password: document.getElementById('np').value.trim(),
+    displayName: document.getElementById('nd').value.trim(),
+    role: document.getElementById('nr').value
+  }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) {
+      ['nu','np','nd'].forEach(function(id) { document.getElementById(id).value = ''; });
+      loadUsers();
+    }
+  });
+}
+
+function removeUser(username) {
+  if (!confirm('ยืนยันปลด ' + username + '?')) return;
+  api('/api/users/remove', {username: username}).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) loadUsers();
+  });
+}
+
+
+// ──────────────────────────────────────────────
+//  ระบบสงคราม
+// ──────────────────────────────────────────────
+var warConfirmType = null;
+
+function loadWarStatus() {
+  fetch('/api/war/current').then(function(r) { return r.json(); }).then(function(war) {
+    var statusEl = document.getElementById('war-status-display');
+    var startCard = document.getElementById('start-war-card');
+    var endCard = document.getElementById('end-war-card');
+
+    if (war.status === 'none') {
+      statusEl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--brown-4);font-size:14px">⚡ ไม่มีสงครามที่กำลังดำเนินอยู่</div>';
+      if (startCard) startCard.classList.remove('hidden');
+      if (endCard) endCard.classList.add('hidden');
+    } else {
+      var elapsed = getElapsed(war.startTime);
+      statusEl.innerHTML = '<div style="background:rgba(255,107,0,0.1);border:2px solid rgba(255,107,0,0.4);border-radius:8px;padding:20px;text-align:center">' +
+        '<div style="font-size:24px;margin-bottom:8px">⚔️</div>' +
+        '<div style="font-family:Cinzel,serif;font-size:18px;color:#FF6B00;margin-bottom:8px">สงครามกำลังดำเนินอยู่!</div>' +
+        '<div style="font-size:16px;color:var(--cream);margin-bottom:4px"><strong>' + war.attackTeam + '</strong> ปะทะ <strong>' + war.defendTeam + '</strong></div>' +
+        '<div style="font-size:12px;color:var(--brown-4);margin-bottom:4px">เริ่มเมื่อ: ' + war.timeStr + ' น. ' + war.dateStr + '</div>' +
+        '<div style="font-size:12px;color:var(--brown-4);margin-bottom:4px">ผู้ประกาศ: ' + war.confirmedBy + '</div>' +
+        '<div style="font-size:14px;color:#FF6B00;font-weight:700" id="war-timer">ดำเนินมาแล้ว: ' + elapsed + '</div>' +
+        '</div>';
+
+      // set winner/loser defaults
+      var ww = document.getElementById('war-winner');
+      var wl = document.getElementById('war-loser');
+      if (ww) ww.value = war.attackTeam;
+      if (wl) wl.value = war.defendTeam;
+
+      var endInfo = document.getElementById('end-war-info');
+      if (endInfo) endInfo.innerHTML = '<strong>' + war.attackTeam + '</strong> ปะทะ <strong>' + war.defendTeam + '</strong> — เริ่ม ' + war.timeStr + ' น.';
+
+      if (startCard) startCard.classList.add('hidden');
+      if (endCard) endCard.classList.remove('hidden');
+
+      // timer
+      setInterval(function() {
+        var t = document.getElementById('war-timer');
+        if (t) t.textContent = 'ดำเนินมาแล้ว: ' + getElapsed(war.startTime);
+      }, 1000);
+    }
+  });
+
+  fetch('/api/war/history').then(function(r) { return r.json(); }).then(function(wars) {
+    var el = document.getElementById('war-history');
+    if (!el) return;
+    if (!wars.length) { el.innerHTML = '<div class="feed-empty">ยังไม่มีประวัติสงคราม</div>'; return; }
+    el.innerHTML = wars.map(function(w) {
+      return '<div style="padding:12px 0;border-bottom:1px solid var(--border)">' +
+        '<div style="font-size:14px;color:var(--cream);font-weight:700">⚔️ ' + w.attackTeam + ' ปะทะ ' + w.defendTeam + '</div>' +
+        '<div style="font-size:12px;color:var(--brown-4);margin-top:2px">เริ่ม: ' + w.timeStr + ' น. ' + w.dateStr + ' | ผู้ประกาศ: ' + w.confirmedBy + '</div>' +
+        (w.winner ? '<div style="font-size:12px;color:var(--gold);margin-top:2px">🏆 ผู้ชนะ: ' + w.winner + ' ยึด ' + w.loser + ' | ผู้ยืนยัน: ' + w.endedBy + '</div>' : '') +
+        '</div>';
+    }).join('');
+  });
+}
+
+function getElapsed(startTime) {
+  var diff = Math.floor((Date.now() - new Date(startTime).getTime()) / 1000);
+  var h = Math.floor(diff / 3600);
+  var m = Math.floor((diff % 3600) / 60);
+  var s = diff % 60;
+  return (h > 0 ? h + ' ชม. ' : '') + m + ' นาที ' + s + ' วินาที';
+}
+
+function showWarConfirm(type) {
+  warConfirmType = type;
+  if (type === 'start') {
+    var atk = document.getElementById('war-attack').value;
+    var def = document.getElementById('war-defend').value;
+    if (!atk || !def) return toast('กรุณาเลือกทีมทั้งสองฝ่าย', false);
+    if (atk === def) return toast('ทีมไม่สามารถรบกับตัวเองได้', false);
+    document.getElementById('war-confirm-info').innerHTML = '⚔️ <strong>' + atk + '</strong> จะเปิดสงครามกับ <strong>' + def + '</strong><br>กรุณาใส่ชื่อเพื่อยืนยัน';
+    document.getElementById('war-confirm-card').classList.remove('hidden');
+    document.getElementById('war-confirmedby').focus();
+  } else {
+    var winner = document.getElementById('war-winner').value;
+    var loser = document.getElementById('war-loser').value;
+    if (!winner || !loser) return toast('กรุณาเลือกทีมผู้ชนะและผู้แพ้', false);
+    if (winner === loser) return toast('ผู้ชนะและผู้แพ้ต้องไม่ใช่ทีมเดียวกัน', false);
+    document.getElementById('war-end-confirm-info').innerHTML = '🏆 <strong>' + winner + '</strong> ยึด <strong>' + loser + '</strong><br>กรุณาใส่ชื่อเพื่อยืนยัน';
+    document.getElementById('war-end-confirm-card').classList.remove('hidden');
+    document.getElementById('war-end-confirmedby').focus();
+  }
+}
+
+function cancelWarConfirm() {
+  document.getElementById('war-confirm-card').classList.add('hidden');
+  document.getElementById('war-confirmedby').value = '';
+}
+
+function cancelWarEndConfirm() {
+  document.getElementById('war-end-confirm-card').classList.add('hidden');
+  document.getElementById('war-end-confirmedby').value = '';
+}
+
+function confirmWarStart() {
+  var atk = document.getElementById('war-attack').value;
+  var def = document.getElementById('war-defend').value;
+  var by = document.getElementById('war-confirmedby').value.trim();
+  if (!by) return toast('กรุณาใส่ชื่อผู้ยืนยัน', false);
+
+  api('/api/war/start', { attackTeam: atk, defendTeam: def, confirmedBy: by }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) {
+      cancelWarConfirm();
+      document.getElementById('war-attack').value = '';
+      document.getElementById('war-defend').value = '';
+      loadWarStatus();
+    }
+  });
+}
+
+function confirmWarEnd() {
+  var winner = document.getElementById('war-winner').value;
+  var loser = document.getElementById('war-loser').value;
+  var by = document.getElementById('war-end-confirmedby').value.trim();
+  if (!by) return toast('กรุณาใส่ชื่อผู้ยืนยัน', false);
+
+  api('/api/war/end', { winner: winner, loser: loser, confirmedBy: by }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) {
+      cancelWarEndConfirm();
+      loadWarStatus();
+    }
+  });
+}
+
+
+
+
+
+// ──────────────────────────────────────────────
+//  ระบบประวัติย้อนหลัง
+// ──────────────────────────────────────────────
+var TYPE_CONFIG = {
+  join:        { icon:'📥', color:'#22AA55', label:'เข้าแมพ' },
+  leave:       { icon:'📤', color:'#888888', label:'ออกแมพ' },
+  kill:        { icon:'⚔️', color:'#FF4444', label:'ฆ่า' },
+  death:       { icon:'💀', color:'#888888', label:'ตาย' },
+  chat:        { icon:'💬', color:'#D4A017', label:'แชท' },
+  moneychange: { icon:'💰', color:'#4CAF50', label:'เงิน' },
+  transfer:    { icon:'💸', color:'#9C27B0', label:'โอนเงิน' },
+  teamchange:  { icon:'🏳️', color:'#42A5F5', label:'เปลี่ยนทีม' },
+  rankchange:  { icon:'🏆', color:'#FFD700', label:'เลื่อนยศ' },
+  war_start:   { icon:'⚔️', color:'#FF6B00', label:'เริ่มสงคราม' },
+  war_end:     { icon:'🏆', color:'#FFD700', label:'จบสงคราม' },
+  fetter:      { icon:'⛓️', color:'#FF5722', label:'โซ่ตรวน' },
+  adminaction: { icon:'⚙️', color:'#9C27B0', label:'Admin' },
+  resetserver: { icon:'🔄', color:'#FF5722', label:'รีเซิร์ฟเวอร์' },
+};
+
+function setTodayFilter() {
+  var today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+  document.getElementById('h-from').value = today;
+  document.getElementById('h-to').value = today;
+}
+
+function resetHistory() {
+  document.getElementById('h-type').value = 'all';
+  setTodayFilter();
+  document.getElementById('h-list').innerHTML = '<div class="feed-empty">กดค้นหาเพื่อดูประวัติ</div>';
+  document.getElementById('h-count').textContent = '';
+}
+
+function renderHistoryItem(ev) {
+  var cfg = TYPE_CONFIG[ev.type] || { icon:'📋', color:'#888', label:ev.type };
+  var color = ev.color || cfg.color;
+  var icon = ev.icon || cfg.icon;
+  var timeStr = ev.time || '';
+  var dateStr = ev.dateStr || '';
+  if (!dateStr && ev.timestamp) {
+    var d = new Date(ev.timestamp);
+    dateStr = d.toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok', day:'2-digit', month:'2-digit', year:'numeric' });
+    timeStr = d.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  }
+  var extra = '';
+  if (ev.type === 'transfer') extra = '<span class="history-amount">฿' + (ev.amount||0).toLocaleString() + '</span>';
+  if (ev.type === 'moneychange') {
+    var sign = (ev.change||0) > 0 ? '+' : '';
+    extra = '<span class="history-amount" style="color:' + ((ev.change||0)>0?'#4CAF50':'#F44336') + '">' + sign + (ev.change||0).toLocaleString() + '</span>';
+  }
+
+  return '<div class="history-item">' +
+    '<div class="history-icon" style="background:' + color + '22;border-color:' + color + '44;color:' + color + '">' + icon + '</div>' +
+    '<div class="history-content">' +
+      '<div class="history-text">' + ev.text + '</div>' +
+      '<div class="history-time">📅 ' + dateStr + ' &nbsp; 🕐 ' + timeStr + ' น.</div>' +
+    '</div>' +
+    extra +
+    '</div>';
+}
+
+function searchHistory() {
+  var type = document.getElementById('h-type').value;
+  var from = document.getElementById('h-from').value;
+  var to = document.getElementById('h-to').value;
+  var limit = document.getElementById('h-limit').value;
+
+  var el = document.getElementById('h-list');
+  el.innerHTML = '<div class="feed-empty">⏳ กำลังโหลด...</div>';
+  document.getElementById('h-count').textContent = '';
+
+  var url = '/api/history/' + encodeURIComponent(type) + '?limit=' + limit;
+  if (from) url += '&from=' + from;
+  if (to) url += '&to=' + to;
+
+  fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+    var count = document.getElementById('h-count');
+    if (!data.length) {
+      el.innerHTML = '<div class="feed-empty">ไม่พบบันทึกในช่วงเวลาที่เลือก</div>';
+      count.textContent = '0 รายการ';
+      return;
+    }
+    count.textContent = 'พบ ' + data.length + ' รายการ';
+    el.innerHTML = data.map(renderHistoryItem).join('');
+  }).catch(function(e) {
+    el.innerHTML = '<div class="feed-empty">เกิดข้อผิดพลาด: ' + e.message + '</div>';
+  });
+}
+
+function loadTransferLog() {
+  fetch('/api/transferlog').then(function(r) { return r.json(); }).then(function(logs) {
+    var el = document.getElementById('transferlog-feed');
+    if (!el) return;
+    var countEl = document.getElementById('transfer-count');
+    if (countEl) countEl.textContent = '(' + logs.length + ' รายการ)';
+    if (!logs.length) { el.innerHTML = '<div class="feed-empty">ยังไม่มีบันทึกการโอนเงิน</div>'; return; }
+    el.innerHTML = logs.map(function(t) {
+      return '<div style="display:flex;align-items:center;gap:14px;padding:14px 12px;border-bottom:1px solid rgba(212,160,23,0.05);transition:background .2s" onmouseover="this.style.background=\'rgba(212,160,23,0.03)\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<div style="width:40px;height:40px;border-radius:50%;background:rgba(156,39,176,0.2);border:1px solid rgba(156,39,176,0.4);display:flex;align-items:center;justify-content:center;font-size:18px">💸</div>' +
+        '<div style="flex:1">' +
+          '<div style="font-size:14px;color:var(--cream);font-weight:600">' +
+            '<strong style="color:var(--gold-light)">' + t.sender + '</strong>' +
+            ' <span style="color:var(--brown-4)">→</span> ' +
+            '<strong style="color:var(--gold-light)">' + t.target + '</strong>' +
+          '</div>' +
+          '<div style="font-size:12px;color:var(--brown-4);margin-top:3px">' + (t.dateStr || '') + ' ' + t.time + ' น.</div>' +
+        '</div>' +
+        '<div style="font-family:Cinzel,serif;font-size:18px;color:var(--gold);font-weight:700">฿' + (t.amount || 0).toLocaleString() + '</div>' +
+        '</div>';
+    }).join('');
+  });
+}
+
+function addTransferToLog(ev) {
+  var el = document.getElementById('transferlog-feed');
+  if (!el) return;
+  var empty = el.querySelector('.feed-empty');
+  if (empty) empty.remove();
+  var html = '<div style="display:flex;align-items:center;gap:14px;padding:14px 12px;border-bottom:1px solid rgba(212,160,23,0.05);background:rgba(156,39,176,0.05);animation:fadeIn .5s">' +
+    '<div style="width:40px;height:40px;border-radius:50%;background:rgba(156,39,176,0.2);border:1px solid rgba(156,39,176,0.4);display:flex;align-items:center;justify-content:center;font-size:18px">💸</div>' +
+    '<div style="flex:1">' +
+      '<div style="font-size:14px;color:var(--cream);font-weight:600">' +
+        '<strong style="color:var(--gold-light)">' + ev.sender + '</strong> → <strong style="color:var(--gold-light)">' + ev.target + '</strong>' +
+      '</div>' +
+      '<div style="font-size:12px;color:var(--brown-4);margin-top:3px">' + (ev.dateStr || '') + ' ' + ev.time + ' น.</div>' +
+    '</div>' +
+    '<div style="font-family:Cinzel,serif;font-size:18px;color:var(--gold);font-weight:700">฿' + (ev.amount || 0).toLocaleString() + '</div>' +
+    '</div>';
+  el.insertAdjacentHTML('afterbegin', html);
+}
+
+function loadMoneyLog() {
+  fetch('/api/moneylog').then(function(r) { return r.json(); }).then(function(logs) {
+    var el = document.getElementById('moneylog-feed');
+    if (!el) return;
+    renderFeed('moneylog-feed', logs);
+  });
+}
+
+function loadFetterLog() {
+  var logs = window._fetterLogs || [];
+  renderFeed('fetter-feed', logs);
+}
+
+function doFetter(action) {
+  var inputId = action === 'lock' ? 'fetter-lock-name' : 'fetter-unlock-name';
+  var username = document.getElementById(inputId).value.trim();
+  if (!username) return toast('กรุณาใส่ชื่อผู้เล่น', false);
+  api('/api/fetter', { username: username, action: action }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) document.getElementById(inputId).value = '';
+  });
+}
+
+function loadPrices() {
+  fetch('/api/prices').then(function(r) { return r.json(); }).then(function(data) {
+    var prices = data.prices || [];
+    var el = document.getElementById('prices-grid');
+    if (!el) return;
+    if (!prices.length) { el.innerHTML = '<div class="feed-empty">ยังไม่มีข้อมูลราคา รอการอัปเดตจากเกม...</div>'; return; }
+    document.getElementById('prices-count').textContent = prices.length + ' รายการ';
+    if (data.updatedAt) {
+      var d = new Date(data.updatedAt);
+      var thaiTime = d.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' });
+      document.getElementById('prices-updated').textContent = '🔴 LIVE — อัปเดต: ' + thaiTime;
+    }
+    var bar = document.getElementById('prices-round-bar');
+    if (bar) bar.style.display = 'flex';
+    var lbl = document.getElementById('prices-label');
+    if (lbl) lbl.textContent = data.label || 'ตลาดสินค้า';
+    var rinfo = document.getElementById('prices-round-info');
+    if (rinfo && data.round) rinfo.textContent = 'รอบที่ ' + data.round + '/' + (data.total||'?') + ' — เปลี่ยนทุก 1 ชั่วโมง';
+    el.innerHTML = prices.map(function(p) {
+      var changeColor, arrow, bgGrad;
+      if (p.change > 0) { changeColor = '#4CAF50'; arrow = '▲'; bgGrad = 'linear-gradient(135deg,rgba(76,175,80,0.08),rgba(0,0,0,0.4))'; }
+      else if (p.change < 0) { changeColor = '#F44336'; arrow = '▼'; bgGrad = 'linear-gradient(135deg,rgba(244,67,54,0.08),rgba(0,0,0,0.4))'; }
+      else { changeColor = '#888'; arrow = '—'; bgGrad = 'rgba(0,0,0,0.3)'; }
+      var changeText = p.change > 0 ? '+' + p.change : p.change;
+      var pct = p.base > 0 ? Math.round((p.change / p.base) * 100) : 0;
+
+      return '<div style="background:' + bgGrad + ';border:1px solid var(--border);border-left:3px solid ' + changeColor + ';border-radius:4px;padding:14px;transition:all .2s" onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 4px 12px rgba(0,0,0,0.4)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'none\'">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+          '<div style="font-size:24px">' + (p.icon || '📦') + '</div>' +
+          '<div style="flex:1;font-size:14px;font-weight:700;color:var(--cream)">' + p.name + '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">' +
+          '<div style="font-family:Cinzel,serif;font-size:22px;font-weight:700;color:var(--gold)">฿' + p.current + '</div>' +
+          '<div style="font-size:14px;color:' + changeColor + ';font-weight:700">' + arrow + ' ' + changeText + (pct ? ' (' + (pct > 0 ? '+' : '') + pct + '%)' : '') + '</div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--brown-4);letter-spacing:1px">ราคาหลัก: ฿' + p.base + '</div>' +
+        '</div>';
+    }).join('');
+  }).catch(function() {
+    var el = document.getElementById('prices-grid');
+    if (el) el.innerHTML = '<div class="feed-empty">ไม่สามารถโหลดราคาได้</div>';
+  });
+}
+
+
+// Reset Server
+
+// ──────────────────────────────────────────────
+//  ระบบประกาศข่าวสาร
+// ──────────────────────────────────────────────
+var announcements = JSON.parse(localStorage.getItem('siam_announcements') || '[]');
+
+function saveAnnouncements() {
+  try { localStorage.setItem('siam_announcements', JSON.stringify(announcements.slice(0,100))); } catch(e) {}
+}
+
+function annFormat(cmd) {
+  document.getElementById('ann-editor').focus();
+  document.execCommand(cmd, false, null);
+}
+function annFontSize(size) {
+  document.getElementById('ann-editor').focus();
+  document.execCommand('fontSize', false, size);
+}
+function annColor(color) {
+  document.getElementById('ann-editor').focus();
+  document.execCommand('foreColor', false, color);
+}
+function annInsertLine() {
+  document.getElementById('ann-editor').focus();
+  document.execCommand('insertHTML', false, '<hr style="border:none;border-top:1px solid rgba(212,160,23,0.3);margin:12px 0">');
+}
+function annInsertImg() {
+  var url = prompt('ใส่ URL รูปภาพ:');
+  if (!url) return;
+  document.getElementById('ann-editor').focus();
+  document.execCommand('insertHTML', false, '<img src="' + url + '" style="max-width:100%;border-radius:4px;margin:8px 0">');
+}
+function clearAnnounce() {
+  document.getElementById('ann-title').value = '';
+  document.getElementById('ann-editor').innerHTML = '';
+}
+
+function postAnnounce() {
+  var title = document.getElementById('ann-title').value.trim();
+  var content2 = document.getElementById('ann-editor').innerHTML.trim();
+  if (!title || !content2 || content2 === '') return toast('กรุณาใส่หัวข้อและเนื้อหา', false);
+
+  var ann = {
+    id: Date.now(),
+    title: title,
+    content: content2,
+    author: currentUser ? currentUser.displayName : 'ไม่ทราบ',
+    role: currentUser ? currentUser.role : 'board',
+    time: new Date().toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' }),
+    date: new Date().toLocaleDateString('th-TH', { timeZone: 'Asia/Bangkok', year:'numeric', month:'long', day:'numeric' }),
+    timestamp: new Date().toISOString()
+  };
+
+  announcements.unshift(ann);
+  saveAnnouncements();
+  clearAnnounce();
+  toast('โพสต์ประกาศสำเร็จ!', true);
+  renderAnnouncements();
+}
+
+function deleteAnnounce(id) {
+  if (!confirm('ยืนยันลบประกาศนี้?')) return;
+  announcements = announcements.filter(function(a) { return a.id !== id; });
+  saveAnnouncements();
+  renderAnnouncements();
+}
+
+function renderAnnouncements() {
+  var ROLES2 = { owner:'#FFD700', board:'#E8A020', admin:'#C4873A', member:'#8B6914' };
+  var el = document.getElementById('announce-list');
+  if (!el) return;
+  if (!announcements.length) {
+    el.innerHTML = '<div class="card"><div class="feed-empty">ยังไม่มีประกาศ</div></div>';
+    return;
+  }
+  var isBoard = currentUser && ['owner','board'].includes(currentUser.role);
+  el.innerHTML = announcements.map(function(ann) {
+    return '<div class="card" style="margin-bottom:14px;border-top:2px solid ' + (ROLES2[ann.role]||'var(--gold-dark)') + '">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">' +
+        '<div>' +
+          '<div style="font-family:Cinzel,serif;font-size:18px;color:var(--gold);margin-bottom:4px">' + ann.title + '</div>' +
+          '<div style="font-size:11px;color:var(--brown-4)">📅 ' + ann.date + ' &nbsp; 🕐 ' + ann.time + ' น. &nbsp; ✍️ ' + ann.author + '</div>' +
+        '</div>' +
+        (isBoard ? '<button class="btn btn-ghost" style="padding:4px 10px;font-size:11px;flex-shrink:0" onclick="deleteAnnounce(' + ann.id + ')">🗑️</button>' : '') +
+      '</div>' +
+      '<div style="font-size:15px;line-height:1.8;color:var(--cream);padding-top:12px;border-top:1px solid var(--border)">' + ann.content + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ──────────────────────────────────────────────
+//  ระบบรีเซ็ตข้อมูล 5 ขั้นตอน
+// ──────────────────────────────────────────────
+var captchaAnswer = '';
+
+function rdStep(step) {
+  // Validate ก่อนไปขั้นถัดไป
+  if (step === 2) {
+    var uid = document.getElementById('rd-userid').value.trim();
+    if (!uid) return toast('กรุณาใส่ชื่อหรือ User ID', false);
+  }
+  if (step === 3) {
+    var c1 = document.getElementById('rd-confirm1').value.trim();
+    var uid2 = document.getElementById('rd-userid').value.trim();
+    if (c1 !== uid2) return toast('ชื่อไม่ตรงกัน กรุณาพิมพ์ใหม่', false);
+    // สร้าง captcha
+    captchaAnswer = String(Math.floor(100000 + Math.random() * 900000));
+    document.getElementById('captcha-display').textContent = captchaAnswer;
+    document.getElementById('rd-captcha').value = '';
+  }
+  if (step === 4) {
+    var cap = document.getElementById('rd-captcha').value.trim();
+    if (cap !== captchaAnswer) return toast('รหัสไม่ถูกต้อง กรุณาลองใหม่', false);
+    var uid3 = document.getElementById('rd-userid').value.trim();
+    var type = document.getElementById('rd-type').value;
+    var typeLabel = type === 'money' ? 'รีเงิน (เหลือ 100 อัฐ)' : 'รีข้อมูลทั้งหมด';
+    document.getElementById('rd-summary').innerHTML = '🎯 ผู้เล่น: <strong style="color:var(--gold)">' + uid3 + '</strong><br>📋 ประเภท: <strong style="color:#FF5722">' + typeLabel + '</strong>';
+  }
+  if (step === 5) {
+    var by = document.getElementById('rd-by').value.trim();
+    if (!by) return toast('กรุณาใส่ชื่อผู้ดำเนินการ', false);
+    var uid4 = document.getElementById('rd-userid').value.trim();
+    var type2 = document.getElementById('rd-type').value;
+    var typeLabel2 = type2 === 'money' ? 'รีเงิน' : 'รีข้อมูลทั้งหมด';
+    document.getElementById('rd-final-msg').textContent = '⚠️ ยืนยันการ' + typeLabel2 + 'ของ "' + uid4 + '" โดย ' + by + ' — ไม่สามารถกู้คืนได้!';
+    document.getElementById('rd-final').value = '';
+  }
+
+  // ซ่อน step ปัจจุบัน แสดง step ถัดไป
+  for (var i = 1; i <= 5; i++) {
+    var el2 = document.getElementById('rd-step' + i);
+    if (el2) el2.classList.add('hidden');
+  }
+  var next = document.getElementById('rd-step' + step);
+  if (next) next.classList.remove('hidden');
+}
+
+function rdBack(step) {
+  for (var i = 1; i <= 5; i++) {
+    var el3 = document.getElementById('rd-step' + i);
+    if (el3) el3.classList.add('hidden');
+  }
+  document.getElementById('rd-step' + step).classList.remove('hidden');
+}
+
+function confirmResetData() {
+  var userId = document.getElementById('rd-userid').value.trim();
+  var resetType = document.getElementById('rd-type').value;
+  var final = document.getElementById('rd-final').value.trim();
+  if (final !== 'CONFIRM_RESET') return toast('พิมพ์ CONFIRM_RESET ให้ถูกต้อง', false);
+
+  api('/api/resetdata', { userId, resetType, step5confirm: final }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) {
+      // รีเซ็ตฟอร์ม
+      ['rd-userid','rd-confirm1','rd-captcha','rd-by','rd-final'].forEach(function(id) {
+        var el4 = document.getElementById(id);
+        if (el4) el4.value = '';
+      });
+      for (var i = 2; i <= 5; i++) {
+        var s = document.getElementById('rd-step' + i);
+        if (s) s.classList.add('hidden');
+      }
+      document.getElementById('rd-step1').classList.remove('hidden');
+    }
+  });
+}
+
+function resetStep1() {
+  var by = document.getElementById('reset-by').value.trim();
+  if (!by) return toast('กรุณาใส่ชื่อผู้ดำเนินการ', false);
+  document.getElementById('reset-step1').classList.add('hidden');
+  document.getElementById('reset-step2').classList.remove('hidden');
+}
+
+function resetStep2() {
+  var reason = document.getElementById('reset-reason').value.trim();
+  if (!reason) return toast('กรุณาใส่เหตุผล', false);
+  document.getElementById('reset-confirm-by').textContent = document.getElementById('reset-by').value;
+  document.getElementById('reset-confirm-reason').textContent = reason;
+  document.getElementById('reset-step2').classList.add('hidden');
+  document.getElementById('reset-step3').classList.remove('hidden');
+}
+
+function resetBack(step) {
+  document.getElementById('reset-step' + step).classList.add('hidden');
+  document.getElementById('reset-step' + (step-1)).classList.remove('hidden');
+}
+
+function confirmReset() {
+  var by = document.getElementById('reset-by').value.trim();
+  var reason = document.getElementById('reset-reason').value.trim();
+  var password = document.getElementById('reset-password').value;
+  if (!password) return toast('กรุณาใส่รหัสผ่าน', false);
+  api('/api/resetserver', { confirmedBy: by, reason: reason, password: password }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) {
+      document.getElementById('reset-by').value = '';
+      document.getElementById('reset-reason').value = '';
+      document.getElementById('reset-password').value = '';
+      document.getElementById('reset-step3').classList.add('hidden');
+      document.getElementById('reset-step1').classList.remove('hidden');
+    }
+  });
+}
+
+// Update permissions based on role
+function applyPermissions(user) {
+  var role = user.role;
+  var isOwner = role === 'owner';
+  var isBoard = role === 'board';
+  var isAdmin = role === 'admin';
+  var isMember = role === 'member';
+
+  // เมนูทั้งหมดที่ต้องควบคุม
+  var allMenus = {
+    member:  ['dashboard','feed','chat','prices','history','announce'],
+    admin:   ['dashboard','feed','chat','prices','history','announce','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban'],
+    board:   ['dashboard','feed','chat','prices','history','announce','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban','fetter','war','resetserver'],
+    owner:   ['dashboard','feed','chat','prices','history','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban','fetter','war','manage','resetserver','resetdata','announce']
+  };
+
+  var allowed = allMenus[role] || allMenus['member'];
+
+  // ซ่อนทุกเมนูที่ไม่ใช่สาธารณะก่อน
+  var allRestricted = ['mapplayers','online','moneylog','teamlog','ranklog','fetter','war','ban','manage','resetserver'];
+  allRestricted.forEach(function(page) {
+    var navItem = document.querySelector('[data-page="' + page + '"]');
+    if (navItem) navItem.style.display = 'none';
+  });
+
+  // เปิดเฉพาะที่มีสิทธิ์ (ลบ hidden class ออกด้วย)
+  allowed.forEach(function(page) {
+    var navItem = document.querySelector('[data-page="' + page + '"]');
+    if (navItem) {
+      navItem.classList.remove('hidden');
+      navItem.style.display = '';
+    }
+    var pageEl = document.getElementById('page-' + page);
+    if (pageEl) {
+      pageEl.classList.remove('hidden');
+    }
+  });
+
+  // ซ่อนปุ่มล้างสำหรับคนที่ไม่ใช่ board ขึ้นไป
+  var canClear = ['board','owner'].includes(role);
+  document.querySelectorAll('.board-btn').forEach(function(btn) {
+    btn.style.display = canClear ? '' : 'none';
+  });
+
+  // ซ่อน page และ nav ที่ไม่มีสิทธิ์
+  allRestricted.forEach(function(page) {
+    if (allowed.indexOf(page) === -1) {
+      var navItem = document.querySelector('[data-page="' + page + '"]');
+      if (navItem) navItem.style.display = 'none';
+      var pageEl = document.getElementById('page-' + page);
+      if (pageEl) pageEl.style.display = 'none';
+    }
+  });
+}
+
+function doLogout() {
+  fetch('/api/logout', {method: 'POST'}).then(function() {
+    window.location.href = '/login';
+  });
+}
+</script>
+</body>
+</html>
