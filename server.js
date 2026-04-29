@@ -10,19 +10,22 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('trust proxy', 1);
 app.use(session({
   secret: 'wintech-siam-2026',
   resave: true,
   saveUninitialized: false,
-  rolling: true, // รีเซ็ต maxAge ทุกครั้งที่ใช้งาน
+  rolling: true,
   cookie: {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 วัน
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: false
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
 }));
 
 const UNIVERSE_ID    = process.env.UNIVERSE_ID;
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 const ROBLOX_API_KEY = process.env.ROBLOX_API_KEY;
 const WEBHOOK_SECRET = 'siam-wintech-2026';
 const DISCORD_WAR_START = process.env.DISCORD_WAR_START || '';
