@@ -191,6 +191,15 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
 
+    <!-- ประกาศล่าสุด -->
+    <div class="card" style="margin-bottom:14px;border-top:2px solid var(--gold-dark)">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>📢 ประกาศล่าสุด</span>
+        <span class="nav-item" data-page="announce" style="cursor:pointer;font-size:12px;color:var(--gold-dark);padding:0;border:none;background:none" onclick="document.querySelector('[data-page=announce]').click()">ดูทั้งหมด →</span>
+      </div>
+      <div id="dash-announce"><div class="feed-empty">กำลังโหลด...</div></div>
+    </div>
+
     <div class="grid-2">
       <div class="card"><div class="card-title">บันทึกการรบล่าสุด</div><div class="feed" id="dash-kill-feed"><div class="feed-empty">ยังไม่มีบันทึก</div></div></div>
       <div class="card"><div class="card-title">การเคลื่อนไหวล่าสุด</div><div class="feed" id="dash-join-feed"><div class="feed-empty">ยังไม่มีการเคลื่อนไหว</div></div></div>
@@ -646,6 +655,140 @@ tr:last-child td{border-bottom:none}
     </div>
   </div>
 
+  <!-- ประกาศข่าวสาร -->
+  <div id="page-announce" class="page">
+    <div class="page-header">
+      <div class="page-title">📢 ประกาศข่าวสาร</div>
+      <div class="page-sub">บอร์ดบริหารขึ้นไปสามารถโพสต์ประกาศได้</div>
+    </div>
+
+    <!-- กล่องเขียน (board ขึ้นไปเห็น) -->
+    <div class="card board-write-section" id="announce-write-card">
+      <div class="card-title">✍️ เขียนประกาศใหม่</div>
+      <div class="field" style="margin-bottom:10px">
+        <label>หัวข้อประกาศ</label>
+        <input id="ann-title" placeholder="หัวข้อประกาศ" style="font-size:16px;font-weight:700">
+      </div>
+      <!-- Toolbar -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;padding:8px;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid var(--border)">
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annFormat('bold')" title="ตัวหนา"><b>B</b></button>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annFormat('italic')" title="ตัวเอียง"><i>I</i></button>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annFormat('underline')" title="ขีดเส้นใต้"><u>U</u></button>
+        <div style="width:1px;background:var(--border);margin:0 4px"></div>
+        <select onchange="annFontSize(this.value)" class="" style="background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:2px;padding:4px 8px;color:var(--cream);font-size:12px">
+          <option value="3">ปกติ</option>
+          <option value="4">ใหญ่</option>
+          <option value="5">ใหญ่มาก</option>
+          <option value="2">เล็ก</option>
+        </select>
+        <select onchange="annColor(this.value)" style="background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:2px;padding:4px 8px;color:var(--cream);font-size:12px">
+          <option value="#F5E6C8">ปกติ</option>
+          <option value="#FFD700">ทอง</option>
+          <option value="#FF6B6B">แดง</option>
+          <option value="#6BCB77">เขียว</option>
+          <option value="#4D96FF">น้ำเงิน</option>
+          <option value="#FF922B">ส้ม</option>
+        </select>
+        <div style="width:1px;background:var(--border);margin:0 4px"></div>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annInsertLine()">— เส้นคั่น</button>
+        <button class="btn btn-ghost" style="padding:6px 10px;font-size:13px" onclick="annInsertImg()">🖼️ รูปภาพ</button>
+      </div>
+      <!-- Editor -->
+      <div id="ann-editor" contenteditable="true" spellcheck="false"
+        style="min-height:150px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:4px;padding:14px;color:var(--cream);font-size:15px;line-height:1.8;outline:none;margin-bottom:12px"
+        placeholder="เขียนเนื้อหาประกาศที่นี่...">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-gold" onclick="postAnnounce()">📢 โพสต์ประกาศ</button>
+        <button class="btn btn-ghost" onclick="clearAnnounce()">ล้าง</button>
+      </div>
+    </div>
+
+    <!-- รายการประกาศ -->
+    <div id="announce-list"></div>
+  </div>
+
+  <!-- รีเซ็ตข้อมูล -->
+  <div id="page-resetdata" class="page owner-only hidden">
+    <div class="page-header">
+      <div class="page-title">🗑️ รีเซ็ตข้อมูลผู้เล่น</div>
+      <div class="page-sub">⚠️ ดำเนินการด้วยความระมัดระวัง ไม่สามารถกู้คืนได้</div>
+    </div>
+    <div class="card" style="border-top:2px solid #FF5722">
+      <div class="card-title" style="color:#FF5722">🤖 ตรวจสอบ + ยืนยัน 5 ขั้นตอน</div>
+
+      <!-- Step 1 -->
+      <div id="rd-step1">
+        <div style="margin-bottom:12px;padding:12px;background:rgba(255,87,34,0.08);border:1px solid rgba(255,87,34,0.2);border-radius:4px;font-size:13px;color:var(--cream)">
+          ⚠️ การรีเซ็ตข้อมูลจะ<strong style="color:#FF5722">ไม่สามารถกู้คืนได้</strong> โปรดดำเนินการด้วยความระมัดระวัง
+        </div>
+        <div class="field"><label>ขั้นตอนที่ 1 — ชื่อผู้เล่น หรือ User ID</label>
+          <input id="rd-userid" placeholder="ชื่อ หรือ Roblox User ID">
+        </div>
+        <div class="field"><label>ประเภทการรีเซ็ต</label>
+          <select id="rd-type">
+            <option value="money">💰 รีเงินอย่างเดียว (เหลือ 100 อัฐ)</option>
+            <option value="all">🗑️ รีข้อมูลทั้งหมด (เริ่มใหม่)</option>
+          </select>
+        </div>
+        <button class="btn btn-red" onclick="rdStep(2)">ถัดไป →</button>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="rd-step2" class="hidden">
+        <div class="field"><label>ขั้นตอนที่ 2 — ยืนยันชื่อผู้ใช้อีกครั้ง</label>
+          <input id="rd-confirm1" placeholder="พิมพ์ชื่อผู้เล่นอีกครั้ง">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="rdBack(1)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="rdStep(3)">ถัดไป →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 — Robot check -->
+      <div id="rd-step3" class="hidden">
+        <div style="margin-bottom:12px;padding:16px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:4px;text-align:center">
+          <div style="font-size:13px;color:var(--brown-4);margin-bottom:12px;letter-spacing:2px">ขั้นตอนที่ 3 — ยืนยันตัวตน (ไม่ใช่หุ่นยนต์)</div>
+          <div style="font-size:32px;font-family:Cinzel,serif;color:var(--gold);letter-spacing:8px;user-select:none;margin-bottom:10px" id="captcha-display"></div>
+          <div style="font-size:12px;color:var(--brown-4);margin-bottom:10px">พิมพ์ตัวเลขที่เห็นด้านบน</div>
+          <input id="rd-captcha" placeholder="พิมพ์ตัวเลข" style="text-align:center;letter-spacing:4px;font-size:18px;width:160px">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="rdBack(2)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="rdStep(4)">ถัดไป →</button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div id="rd-step4" class="hidden">
+        <div id="rd-summary" style="margin-bottom:16px;padding:16px;background:rgba(255,87,34,0.1);border:1px solid rgba(255,87,34,0.3);border-radius:4px;font-size:14px;color:var(--cream)"></div>
+        <div class="field"><label>ขั้นตอนที่ 4 — ชื่อผู้ดำเนินการ</label>
+          <input id="rd-by" placeholder="ชื่อของคุณ">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="rdBack(3)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="rdStep(5)">ถัดไป →</button>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div id="rd-step5" class="hidden">
+        <div style="margin-bottom:16px;padding:16px;background:rgba(255,87,34,0.15);border:2px solid rgba(255,87,34,0.5);border-radius:4px;text-align:center">
+          <div style="font-size:20px;margin-bottom:8px">⚠️</div>
+          <div style="font-size:14px;color:var(--cream);font-weight:700" id="rd-final-msg"></div>
+        </div>
+        <div class="field"><label>ขั้นตอนที่ 5 — พิมพ์ "CONFIRM_RESET" เพื่อยืนยัน</label>
+          <input id="rd-final" placeholder="CONFIRM_RESET" style="letter-spacing:2px">
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="rdBack(4)">← ย้อนกลับ</button>
+          <button class="btn btn-red" onclick="confirmResetData()">🗑️ ยืนยันรีเซ็ต</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- รีเซิร์ฟเวอร์ -->
   <div id="page-resetserver" class="page">
     <div class="page-header">
@@ -710,6 +853,7 @@ window.onload = function() {
     startSSE();
     setInterval(loadAll, 30000);
     setInterval(loadMapPlayers, 5000);
+  loadAnnouncements();
     setInterval(function() {
       var pricesPage = document.getElementById('page-prices');
       if (pricesPage && pricesPage.classList.contains('active')) loadPrices();
@@ -746,6 +890,7 @@ document.getElementById('nav-menu').addEventListener('click', function(e) {
   if (page === 'moneylog') loadMoneyLog();
   if (page === 'transferlog') loadTransferLog();
   if (page === 'history') { setTodayFilter(); searchHistory(); }
+  if (page === 'announce') { loadAnnouncements(); var isBoard = currentUser && ['owner','board'].includes(currentUser.role); var wc = document.getElementById('announce-write-card'); if (wc) wc.style.display = isBoard ? 'block' : 'none'; }
   if (page === 'fetter') loadFetterLog();
   if (page === 'manage') loadUsers();
   if (page === 'online' || page === 'dashboard') loadAll();
@@ -763,7 +908,18 @@ function api(url, body) {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(body)
-  }).then(function(r) { return r.json(); });
+  }).then(function(r) {
+    if (r.status === 401) {
+      toast('⚠️ Session หมดอายุ กรุณา Login ใหม่', false);
+      setTimeout(function() { window.location.href = '/'; }, 2000);
+      throw new Error('session expired');
+    }
+    if (r.status === 403) {
+      toast('❌ ไม่มีสิทธิ์ใช้งานฟังก์ชันนี้', false);
+      throw new Error('forbidden');
+    }
+    return r.json();
+  });
 }
 
 function fmt(iso) {
@@ -826,6 +982,16 @@ function startSSE() {
       if (ev.type === 'chat') addToFeed('chat-feed', ev);
       if (ev.type === 'teamchange') addToFeed('teamlog-feed', ev);
       if (ev.type === 'rankchange') addToFeed('ranklog-feed', ev);
+      if (ev.type === 'announcement') {
+        announcements.unshift(ev.ann);
+        renderAnnouncements();
+        renderDashboardAnnouncements();
+      }
+      if (ev.type === 'announcement_delete') {
+        announcements = announcements.filter(function(a) { return a.id !== ev.id; });
+        renderAnnouncements();
+        renderDashboardAnnouncements();
+      }
       if (ev.type === 'prices') {
         // อัปเดต label ทันที
         var lbl2 = document.getElementById('prices-label');
@@ -929,29 +1095,33 @@ function selectPlayer(idx) {
 function doReduceMoney() {
   var userId = document.getElementById('give-id').value.trim();
   var amount = document.getElementById('reduce-amount').value.trim();
-  if (!userId || !amount) return toast('กรุณาใส่จำนวนเงิน', false);
+  if (!userId) return toast('⚠️ กรุณาเลือกผู้เล่นก่อน', false);
+  if (!amount || isNaN(amount) || parseInt(amount) <= 0) return toast('⚠️ กรุณาใส่จำนวนที่ถูกต้อง', false);
+  toast('⏳ กำลังส่งคำสั่ง...', true);
   api('/api/admin/cmd', { userId: userId, cmd: 'setmoney', amount: -parseInt(amount) }).then(function(d) {
     toast(d.msg, d.ok);
-    if (d.ok) { document.getElementById('reduce-amount').value = ''; setTimeout(loadMapPlayers, 2000); }
-  });
+    if (d.ok) { document.getElementById('reduce-amount').value = ''; setTimeout(loadMapPlayers, 3000); }
+  }).catch(function(e) { toast('❌ เกิดข้อผิดพลาด: ' + e.message, false); });
 }
 
 function doClearInventory() {
   var userId = document.getElementById('give-id').value.trim();
   var name = document.getElementById('pd-name').textContent;
-  if (!userId) return toast('กรุณาเลือกผู้เล่นก่อน', false);
+  if (!userId) return toast('⚠️ กรุณาเลือกผู้เล่นก่อน', false);
   if (!confirm('ยืนยันลบของทั้งหมดของ ' + name + '?')) return;
+  toast('⏳ กำลังส่งคำสั่ง...', true);
   api('/api/admin/cmd', { userId: userId, cmd: 'clearinventory' }).then(function(d) {
     toast(d.msg, d.ok);
-  });
+  }).catch(function(e) { toast('❌ เกิดข้อผิดพลาด: ' + e.message, false); });
 }
 
 function doFillFoodWater() {
   var userId = document.getElementById('give-id').value.trim();
-  if (!userId) return toast('กรุณาเลือกผู้เล่นก่อน', false);
+  if (!userId) return toast('⚠️ กรุณาเลือกผู้เล่นก่อน', false);
+  toast('⏳ กำลังส่งคำสั่ง...', true);
   api('/api/admin/cmd', { userId: userId, cmd: 'fillfoodwater' }).then(function(d) {
     toast(d.msg, d.ok);
-  });
+  }).catch(function(e) { toast('❌ เกิดข้อผิดพลาด: ' + e.message, false); });
 }
 
 function doViewScreen() {
@@ -1384,6 +1554,186 @@ function loadPrices() {
 
 
 // Reset Server
+
+// ──────────────────────────────────────────────
+//  ระบบประกาศข่าวสาร
+// ──────────────────────────────────────────────
+var announcements = [];
+
+function saveAnnouncements() {} // now server-based
+
+function loadAnnouncements() {
+  fetch('/api/announcements').then(function(r) { return r.json(); }).then(function(data) {
+    announcements = data;
+    renderAnnouncements();
+    // แสดงใน dashboard ด้วย
+    renderDashboardAnnouncements();
+  });
+}
+
+function annFormat(cmd) {
+  document.getElementById('ann-editor').focus();
+  document.execCommand(cmd, false, null);
+}
+function annFontSize(size) {
+  document.getElementById('ann-editor').focus();
+  document.execCommand('fontSize', false, size);
+}
+function annColor(color) {
+  document.getElementById('ann-editor').focus();
+  document.execCommand('foreColor', false, color);
+}
+function annInsertLine() {
+  document.getElementById('ann-editor').focus();
+  document.execCommand('insertHTML', false, '<hr style="border:none;border-top:1px solid rgba(212,160,23,0.3);margin:12px 0">');
+}
+function annInsertImg() {
+  var url = prompt('ใส่ URL รูปภาพ:');
+  if (!url) return;
+  document.getElementById('ann-editor').focus();
+  document.execCommand('insertHTML', false, '<img src="' + url + '" style="max-width:100%;border-radius:4px;margin:8px 0">');
+}
+function clearAnnounce() {
+  document.getElementById('ann-title').value = '';
+  document.getElementById('ann-editor').innerHTML = '';
+}
+
+function postAnnounce() {
+  var title = document.getElementById('ann-title').value.trim();
+  var content2 = document.getElementById('ann-editor').innerHTML.trim();
+  if (!title || !content2 || content2 === '<br>') return toast('กรุณาใส่หัวข้อและเนื้อหา', false);
+  toast('⏳ กำลังโพสต์...', true);
+  api('/api/announcements', { title: title, content: content2 }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) { clearAnnounce(); loadAnnouncements(); }
+  }).catch(function(e) { toast('❌ ' + e.message, false); });
+}
+
+function deleteAnnounce(id) {
+  if (!confirm('ยืนยันลบประกาศนี้?')) return;
+  fetch('/api/announcements/' + id, { method: 'DELETE' }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.ok) { loadAnnouncements(); toast('ลบประกาศแล้ว', true); }
+  });
+}
+
+function renderDashboardAnnouncements() {
+  var el = document.getElementById('dash-announce');
+  if (!el) return;
+  if (!announcements.length) {
+    el.innerHTML = '<div class="feed-empty">ยังไม่มีประกาศ</div>';
+    return;
+  }
+  var latest = announcements.slice(0, 3);
+  var ROLES3 = { owner:'#FFD700', board:'#E8A020', admin:'#C4873A', member:'#8B6914' };
+  el.innerHTML = latest.map(function(ann) {
+    return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">' +
+      '<div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:4px">📢 ' + ann.title + '</div>' +
+      '<div style="font-size:12px;color:var(--brown-4)">✍️ ' + ann.author + ' — ' + ann.date + ' ' + ann.time + ' น.</div>' +
+      '</div>';
+  }).join('');
+}
+
+function renderAnnouncements() {
+  var ROLES2 = { owner:'#FFD700', board:'#E8A020', admin:'#C4873A', member:'#8B6914' };
+  var el = document.getElementById('announce-list');
+  if (!el) return;
+  if (!announcements.length) {
+    el.innerHTML = '<div class="card"><div class="feed-empty">ยังไม่มีประกาศ</div></div>';
+    return;
+  }
+  var isBoard = currentUser && ['owner','board'].includes(currentUser.role);
+  el.innerHTML = announcements.map(function(ann) {
+    return '<div class="card" style="margin-bottom:14px;border-top:2px solid ' + (ROLES2[ann.role]||'var(--gold-dark)') + '">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">' +
+        '<div>' +
+          '<div style="font-family:Cinzel,serif;font-size:18px;color:var(--gold);margin-bottom:4px">' + ann.title + '</div>' +
+          '<div style="font-size:11px;color:var(--brown-4)">📅 ' + ann.date + ' &nbsp; 🕐 ' + ann.time + ' น. &nbsp; ✍️ ' + ann.author + '</div>' +
+        '</div>' +
+        (isBoard ? '<button class="btn btn-ghost" style="padding:4px 10px;font-size:11px;flex-shrink:0" onclick="deleteAnnounce(' + ann.id + ')">🗑️</button>' : '') +
+      '</div>' +
+      '<div style="font-size:15px;line-height:1.8;color:var(--cream);padding-top:12px;border-top:1px solid var(--border)">' + ann.content + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ──────────────────────────────────────────────
+//  ระบบรีเซ็ตข้อมูล 5 ขั้นตอน
+// ──────────────────────────────────────────────
+var captchaAnswer = '';
+
+function rdStep(step) {
+  // Validate ก่อนไปขั้นถัดไป
+  if (step === 2) {
+    var uid = document.getElementById('rd-userid').value.trim();
+    if (!uid) return toast('กรุณาใส่ชื่อหรือ User ID', false);
+  }
+  if (step === 3) {
+    var c1 = document.getElementById('rd-confirm1').value.trim();
+    var uid2 = document.getElementById('rd-userid').value.trim();
+    if (c1 !== uid2) return toast('ชื่อไม่ตรงกัน กรุณาพิมพ์ใหม่', false);
+    // สร้าง captcha
+    captchaAnswer = String(Math.floor(100000 + Math.random() * 900000));
+    document.getElementById('captcha-display').textContent = captchaAnswer;
+    document.getElementById('rd-captcha').value = '';
+  }
+  if (step === 4) {
+    var cap = document.getElementById('rd-captcha').value.trim();
+    if (cap !== captchaAnswer) return toast('รหัสไม่ถูกต้อง กรุณาลองใหม่', false);
+    var uid3 = document.getElementById('rd-userid').value.trim();
+    var type = document.getElementById('rd-type').value;
+    var typeLabel = type === 'money' ? 'รีเงิน (เหลือ 100 อัฐ)' : 'รีข้อมูลทั้งหมด';
+    document.getElementById('rd-summary').innerHTML = '🎯 ผู้เล่น: <strong style="color:var(--gold)">' + uid3 + '</strong><br>📋 ประเภท: <strong style="color:#FF5722">' + typeLabel + '</strong>';
+  }
+  if (step === 5) {
+    var by = document.getElementById('rd-by').value.trim();
+    if (!by) return toast('กรุณาใส่ชื่อผู้ดำเนินการ', false);
+    var uid4 = document.getElementById('rd-userid').value.trim();
+    var type2 = document.getElementById('rd-type').value;
+    var typeLabel2 = type2 === 'money' ? 'รีเงิน' : 'รีข้อมูลทั้งหมด';
+    document.getElementById('rd-final-msg').textContent = '⚠️ ยืนยันการ' + typeLabel2 + 'ของ "' + uid4 + '" โดย ' + by + ' — ไม่สามารถกู้คืนได้!';
+    document.getElementById('rd-final').value = '';
+  }
+
+  // ซ่อน step ปัจจุบัน แสดง step ถัดไป
+  for (var i = 1; i <= 5; i++) {
+    var el2 = document.getElementById('rd-step' + i);
+    if (el2) el2.classList.add('hidden');
+  }
+  var next = document.getElementById('rd-step' + step);
+  if (next) next.classList.remove('hidden');
+}
+
+function rdBack(step) {
+  for (var i = 1; i <= 5; i++) {
+    var el3 = document.getElementById('rd-step' + i);
+    if (el3) el3.classList.add('hidden');
+  }
+  document.getElementById('rd-step' + step).classList.remove('hidden');
+}
+
+function confirmResetData() {
+  var userId = document.getElementById('rd-userid').value.trim();
+  var resetType = document.getElementById('rd-type').value;
+  var final = document.getElementById('rd-final').value.trim();
+  if (final !== 'CONFIRM_RESET') return toast('พิมพ์ CONFIRM_RESET ให้ถูกต้อง', false);
+
+  api('/api/resetdata', { userId, resetType, step5confirm: final }).then(function(d) {
+    toast(d.msg, d.ok);
+    if (d.ok) {
+      // รีเซ็ตฟอร์ม
+      ['rd-userid','rd-confirm1','rd-captcha','rd-by','rd-final'].forEach(function(id) {
+        var el4 = document.getElementById(id);
+        if (el4) el4.value = '';
+      });
+      for (var i = 2; i <= 5; i++) {
+        var s = document.getElementById('rd-step' + i);
+        if (s) s.classList.add('hidden');
+      }
+      document.getElementById('rd-step1').classList.remove('hidden');
+    }
+  });
+}
+
 function resetStep1() {
   var by = document.getElementById('reset-by').value.trim();
   if (!by) return toast('กรุณาใส่ชื่อผู้ดำเนินการ', false);
@@ -1432,10 +1782,10 @@ function applyPermissions(user) {
 
   // เมนูทั้งหมดที่ต้องควบคุม
   var allMenus = {
-    member:  ['dashboard','feed','chat','prices','history'],
-    admin:   ['dashboard','feed','chat','prices','history','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban'],
-    board:   ['dashboard','feed','chat','prices','history','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban','fetter','war','resetserver'],
-    owner:   ['dashboard','feed','chat','prices','history','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban','fetter','war','manage','resetserver']
+    member:  ['dashboard','feed','chat','prices','history','announce'],
+    admin:   ['dashboard','feed','chat','prices','history','announce','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban'],
+    board:   ['dashboard','feed','chat','prices','history','announce','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban','fetter','war','resetserver'],
+    owner:   ['dashboard','feed','chat','prices','history','mapplayers','online','moneylog','transferlog','teamlog','ranklog','ban','fetter','war','manage','resetserver','resetdata','announce']
   };
 
   var allowed = allMenus[role] || allMenus['member'];
